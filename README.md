@@ -20,6 +20,6 @@ There will be a model – HeatPump – for the heat pump and district heating ne
 12August – Develop the simulation
 
 ## Minimum Viable Product milestones
-Essential – Static text print out of simulation report to user.
-Really great to have – Static visualization charts of simulation in plotly, matplotlib, seaborn, etc. 
-Nice-to-have – Compiled report in pdf form and dashboard of simulation charts. Least likely because of .tex compiler variations on the backend.
+* Essential – Static text print out of simulation report to user.
+* Really great to have – Static visualization charts of simulation in plotly, matplotlib, seaborn, etc. 
+* Nice-to-have – Compiled report in pdf form and dashboard of simulation charts. Least likely because of .tex compiler variations on the backend.
