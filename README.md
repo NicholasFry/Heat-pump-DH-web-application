@@ -1,7 +1,7 @@
 # Heat-pump-DH-web-application
 Uses TESPy to run simulations of heat pump driven district heating from a web application. 
 
-###PDX Code Guild Capstone Proposal
+#PDX Code Guild Capstone Proposal
 
 ##Title: Low-carbon District Heating Assessments
 
