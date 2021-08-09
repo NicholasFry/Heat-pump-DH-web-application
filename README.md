@@ -1,9 +1,7 @@
-# Heat-pump-DH-web-application
-Uses TESPy to run simulations of heat pump driven district heating from a web application. 
-
 # PDX Code Guild Capstone Proposal
 
 ## Title: Low-carbon District Heating Assessments
+Uses TESPy to run simulations of heat pump driven district heating from a web application. 
 
 ## Project Overview
 There is a need to rapidly assess the feasibility of various waste heat sources (geothermal, steel making, data centers, etc.) for their direct application in industrial, commercial, and residential heat networks. Heat networks have the potential to decarbonize up to 40% of primary energy consumption in North America. One application in these heat networks are centralized heat pumps. 
