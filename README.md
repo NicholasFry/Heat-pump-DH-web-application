@@ -12,12 +12,12 @@ This project will model a simple ammonia (NH3), single-stage heat pump coupled t
 A user knowing the exit temperature of their waste heat source should be able to easily enter parameters for temperature and design demand loads to assess the system efficiency of a heat pump without having any programming skills. This will enable data center operators, power plant operators, and oil & gas field operators to quickly understand the economic and energetic potential of their otherwise wasted heat.
 ## Data Model
 There will be a model – HeatPump – for the heat pump and district heating network simulation. There will also be a model – Results – for the results from the simulation.
-27August – Complete with presentation	
-21August – Continue refinements
-20August – Minimum Viable Product
-16August – Refine the user interface
-13August – Develop the user interface
-12August – Develop the simulation
+- 27August – Complete with presentation	
+- 21August – Continue refinements
+- 20August – Minimum Viable Product
+- 16August – Refine the user interface
+- 13August – Develop the user interface
+- 12August – Develop the simulation
 
 ## Minimum Viable Product milestones
 * Essential – Static text print out of simulation report to user.
