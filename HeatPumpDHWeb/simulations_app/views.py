@@ -142,34 +142,34 @@ cons_1.set_attr(Q=SimParameters.dh_heat_demand_in_watts) #4MW demand, demand uni
 
 # %% Calculation and document output
 #from TESPy Issue #281 and https://tespy.readthedocs.io/en/main/tespy_modules.html#automatic-model-documentation
-fmt = {
-    'latex_body': True,  # adds LaTeX body to compile report out of the box
-    'include_results': True,  # include parameter specification and results
-    'HeatExchanger': {  # for components of class HeatExchanger
-        'params': ['Q', 'ttd_l', 'ttd_u', 'pr1', 'pr2']},  # change columns displayed
-    'Condenser': {  # for components of class HeatExchanger
-        'params': ['Q', 'ttd_l', 'ttd_u', 'pr1', 'pr2'],
-        'float_fmt': '{:,.2f}'},  # change float format of data
-    'Connection': {  # for Connection instances
-        'p': {'float_fmt': '{:,.4f}'},  # change float format of pressure
-        's': {'float_fmt': '{:,.4f}'},
-        'h': {'float_fmt': '{:,.2f}'},
-        'params': ['m', 'p', 'h', 's'],  # list results of mass flow, ...
-        'fluid': {'include_results': False}  # exclude results of fluid composition
-    },
-    'include_results': True,  # include results
-    'draft': False  # disable draft mode
-}
+# fmt = {
+#     'latex_body': True,  # adds LaTeX body to compile report out of the box
+#     'include_results': True,  # include parameter specification and results
+#     'HeatExchanger': {  # for components of class HeatExchanger
+#         'params': ['Q', 'ttd_l', 'ttd_u', 'pr1', 'pr2']},  # change columns displayed
+#     'Condenser': {  # for components of class HeatExchanger
+#         'params': ['Q', 'ttd_l', 'ttd_u', 'pr1', 'pr2'],
+#         'float_fmt': '{:,.2f}'},  # change float format of data
+#     'Connection': {  # for Connection instances
+#         'p': {'float_fmt': '{:,.4f}'},  # change float format of pressure
+#         's': {'float_fmt': '{:,.4f}'},
+#         'h': {'float_fmt': '{:,.2f}'},
+#         'params': ['m', 'p', 'h', 's'],  # list results of mass flow, ...
+#         'fluid': {'include_results': False}  # exclude results of fluid composition
+#     },
+#     'include_results': True,  # include results
+#     'draft': False  # disable draft mode
+# }
 
 nw.solve('design')#network solve    
 nw.print_results()
 nw.save('heat_pump_water')
-document_model(nw, filename='report_water_design.tex', fmt=fmt)#output network model to latex report
+# document_model(nw, filename='report_water_design.tex', fmt=fmt)#output network model to latex report
 
 # offdesign test
 nw.solve('offdesign', design_path='heat_pump_water')#solve the offdesign values for the network (other projected outcomes)
-document_model(nw, filename='report_water_offdesign.tex', fmt=fmt)#print these alternatives to a latex report
-#the following comments are from fwitte
+# document_model(nw, filename='report_water_offdesign.tex', fmt=fmt)#print these alternatives to a latex report
+# #the following comments are from fwitte
 T_range = [SimParameters.offdesign1_wasted_heat_design_temperature, SimParameters.offdesign2_wasted_heat_design_temperature, SimParameters.offdesign3_wasted_heat_design_temperature, SimParameters.offdesign4_wasted_heat_design_temperature][::-1]#inverted the temperature and heat provision ranges to always start near the design point specifications rather than further away.
 Q_range = np.array([SimParameters.offdesign1_dh_heat_demand_in_watts, SimParameters.offdesign2_dh_heat_demand_in_watts, SimParameters.offdesign3_dh_heat_demand_in_watts, SimParameters.offdesign4_dh_heat_demand_in_watts])[::-1]#Only after restarting from full load after modifying the temperature I read the initial values from the design specs, all other simulations start at the previous solution of the model which is always near the current case.
 df = pd.DataFrame(columns=Q_range / -cons_1.Q.val)
@@ -192,3 +192,4 @@ for T in T_range:
     df.loc[T] = eps
 
 df.to_csv('COP_water.csv')
+#make a function here, collect variables into it.

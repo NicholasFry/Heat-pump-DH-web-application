@@ -25,5 +25,5 @@ class SimParameters(models.Model):
     offdesign3_dh_heat_demand_in_watts = dh_heat_demand_in_watts*1.2
     offdesign4_dh_heat_demand_in_watts = dh_heat_demand_in_watts*1.4
 
-    def __str__(self):
-        return self.name
+    def __str__(self):#if you ever print params, if you don't have then you get a memory location
+        return self.dh_supply_temp
