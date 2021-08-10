@@ -11,185 +11,190 @@ from tespy.tools.characteristics import load_default_char as ldc
 from tespy.tools import document_model
 
 from simulations_app.models import SimParameters
+from django.http.response import HttpResponseForbidden, HttpResponseRedirect
 
 import numpy as np
 import pandas as pd
-# %% network
-#Water is used for the cold side of the heat exchanger, for the consumer and for the hot side of the environmental temperature.
-#Ammonia is used as coolant within the heat pump circuit.
-nw = Network(
-    fluids=['water', 'NH3'], T_unit='C', p_unit='bar', h_unit='kJ / kg',
-    m_unit='kg / s'
-)
 
-# %% components
+def SimOutput():
+    # %% network
+    #Water is used for the cold side of the heat exchanger, for the consumer and for the hot side of the environmental temperature.
+    #Ammonia is used as coolant within the heat pump circuit.
+    nw = Network(
+        fluids=['water', 'NH3'], T_unit='C', p_unit='bar', h_unit='kJ / kg',
+        m_unit='kg / s'
+    )
 
-# sources & sinks
-cc1 = CycleCloser('coolant cycle closer1')#CycleCloser component makes sure, the fluid properties pressure and enthalpy are identical at the inlet and the outlet. 
-# cc2 = CycleCloser('coolant cycle closer2')#add later for heat pump 2
-cc_cons = CycleCloser('consumer cycle closer')
-electra_therm_rejected_heat = Source('source heat from electratherm')
-# exit_heat_from_condenser1 = Source('source heat from condenser1 exit')#added by trial and error
-# exit_heat_from_evaporator1 = Sink('exit_heat_from_evaporator1')#added by trial and error
-sink_electratherm_cooling_reservoir= Sink('sink cool water')
-pu = Pump('pump')#pumps source heat from ElectraTherm rejected heat reservoir
+    # %% components
 
-# consumer system
+    # sources & sinks
+    cc1 = CycleCloser('coolant cycle closer1')#CycleCloser component makes sure, the fluid properties pressure and enthalpy are identical at the inlet and the outlet. 
+    # cc2 = CycleCloser('coolant cycle closer2')#add later for heat pump 2
+    cc_cons = CycleCloser('consumer cycle closer')
+    electra_therm_rejected_heat = Source('source heat from electratherm')
+    # exit_heat_from_condenser1 = Source('source heat from condenser1 exit')#added by trial and error
+    # exit_heat_from_evaporator1 = Sink('exit_heat_from_evaporator1')#added by trial and error
+    sink_electratherm_cooling_reservoir= Sink('sink cool water')
+    pu = Pump('pump')#pumps source heat from ElectraTherm rejected heat reservoir
 
-condenser_1 = Condenser('condenser 1')#closest to cooling reservoir
-district_heating_pump = Pump('district heating pump')#feeds the first condenser 
-cons_1 = HeatExchangerSimple('consumer 1')#exits the first condenser, enters the second condenser
+    # consumer system
 
-ves1 = Valve('valve 1')
-dr1 = Drum('drum 1')
-ev1 = HeatExchanger('evaporator 1')
-erp1 = Pump('evaporator recirculation pump 1')
+    condenser_1 = Condenser('condenser 1')#closest to cooling reservoir
+    district_heating_pump = Pump('district heating pump')#feeds the first condenser 
+    cons_1 = HeatExchangerSimple('consumer 1')#exits the first condenser, enters the second condenser
 
-# compressor-system(s)
+    ves1 = Valve('valve 1')
+    dr1 = Drum('drum 1')
+    ev1 = HeatExchanger('evaporator 1')
+    erp1 = Pump('evaporator recirculation pump 1')
 
-compressor1 = Compressor('compressor 1')
+    # compressor-system(s)
 
-# %% connections
+    compressor1 = Compressor('compressor 1')
 
-# consumer system
+    # %% connections
 
-c_in_condenser_1 = Connection(cc1, 'out1', condenser_1, 'in1')#cyclecloser to condenser 1, see https://tespy.readthedocs.io/en/main/tutorials_examples.html#cop-of-a-heat-pump
+    # consumer system
 
-cb_district_heating_pump = Connection(cc_cons, 'out1', district_heating_pump, 'in1')#return from DH
-district_heating_pump_condenser_1 = Connection(district_heating_pump, 'out1', condenser_1, 'in2')#DH pump feeds condenser 1 (return from DH)
-condenser1_cons = Connection(condenser_1, 'out2', cons_1, 'in1')
-cons_cf = Connection(cons_1, 'out1', cc_cons, 'in1')#out to consumer DH network with cycle closer for enthalpy and pressure match
+    c_in_condenser_1 = Connection(cc1, 'out1', condenser_1, 'in1')#cyclecloser to condenser 1, see https://tespy.readthedocs.io/en/main/tutorials_examples.html#cop-of-a-heat-pump
 
-nw.add_conns(c_in_condenser_1, cb_district_heating_pump, district_heating_pump_condenser_1, condenser1_cons, cons_cf)
+    cb_district_heating_pump = Connection(cc_cons, 'out1', district_heating_pump, 'in1')#return from DH
+    district_heating_pump_condenser_1 = Connection(district_heating_pump, 'out1', condenser_1, 'in2')#DH pump feeds condenser 1 (return from DH)
+    condenser1_cons = Connection(condenser_1, 'out2', cons_1, 'in1')
+    cons_cf = Connection(cons_1, 'out1', cc_cons, 'in1')#out to consumer DH network with cycle closer for enthalpy and pressure match
 
-# connection condenser - evaporator system
+    nw.add_conns(c_in_condenser_1, cb_district_heating_pump, district_heating_pump_condenser_1, condenser1_cons, cons_cf)
 
-condenser1_ves = Connection(condenser_1, 'out1', ves1, 'in1')#condeser to expansion valve
+    # connection condenser - evaporator system
 
-nw.add_conns(condenser1_ves)
+    condenser1_ves = Connection(condenser_1, 'out1', ves1, 'in1')#condeser to expansion valve
 
-ves1_dr1 = Connection(ves1, 'out1', dr1, 'in1')#valve connects to drum at inlet
-dr1_erp1 = Connection(dr1, 'out1', erp1, 'in1')#drum outlet to evaporator recirculation pump inlet
-erp1_ev1 = Connection(erp1, 'out1', ev1, 'in2')#pump outlet to evaporator inlet
-ev1_dr1 = Connection(ev1, 'out2', dr1, 'in2')#evaporator outlet to drum inlet
+    nw.add_conns(condenser1_ves)
 
-nw.add_conns(ves1_dr1, dr1_erp1, erp1_ev1, ev1_dr1)#add all the connections above to the network, Connections is a class, add_conns is the function that takes them in
+    ves1_dr1 = Connection(ves1, 'out1', dr1, 'in1')#valve connects to drum at inlet
+    dr1_erp1 = Connection(dr1, 'out1', erp1, 'in1')#drum outlet to evaporator recirculation pump inlet
+    erp1_ev1 = Connection(erp1, 'out1', ev1, 'in2')#pump outlet to evaporator inlet
+    ev1_dr1 = Connection(ev1, 'out2', dr1, 'in2')#evaporator outlet to drum inlet
 
-rejected_heat_to_pump = Connection(electra_therm_rejected_heat, 'out1', pu, 'in1')
-p_ev1 = Connection(pu, 'out1', ev1, 'in1')#pump to evaporator1
-ev1_sink = Connection(ev1, 'out1', sink_electratherm_cooling_reservoir, 'in1')#exit to cooling reservoir
+    nw.add_conns(ves1_dr1, dr1_erp1, erp1_ev1, ev1_dr1)#add all the connections above to the network, Connections is a class, add_conns is the function that takes them in
 
-nw.add_conns(rejected_heat_to_pump, p_ev1, ev1_sink)
+    rejected_heat_to_pump = Connection(electra_therm_rejected_heat, 'out1', pu, 'in1')
+    p_ev1 = Connection(pu, 'out1', ev1, 'in1')#pump to evaporator1
+    ev1_sink = Connection(ev1, 'out1', sink_electratherm_cooling_reservoir, 'in1')#exit to cooling reservoir
 
-# connection evaporator system - compressor system
+    nw.add_conns(rejected_heat_to_pump, p_ev1, ev1_sink)
 
-dr1_compressor1 = Connection(dr1, 'out2', compressor1, 'in1')#drum outlet2 to compressor1
+    # connection evaporator system - compressor system
 
-nw.add_conns(dr1_compressor1)
+    dr1_compressor1 = Connection(dr1, 'out2', compressor1, 'in1')#drum outlet2 to compressor1
 
-compressor1_c_out = Connection(compressor1, 'out1', cc1, 'in1')
+    nw.add_conns(dr1_compressor1)
 
-nw.add_conns(compressor1_c_out)
+    compressor1_c_out = Connection(compressor1, 'out1', cc1, 'in1')
 
-# %% component parametrization
+    nw.add_conns(compressor1_c_out)
 
-# condenser system
-condenser_1.set_attr(pr1=0.99, pr2=0.99, ttd_u=SimParameters.upper_terminal_temperature_difference_condenser, design=['pr2', 'ttd_u'], #upper terminal temperature difference as design parameter, pressure ratios
-            offdesign=['zeta2', 'kA_char'])#kA_char is area independent heat transfer coefficient characteristic
-district_heating_pump.set_attr(eta_s=SimParameters.district_heating_pump_efficiency, design=['eta_s'], offdesign=['eta_s_char'])#efficiency of the district heating pump set to 80%
-cons_1.set_attr(pr=0.99, design=['pr'], offdesign=['zeta'])#In offdesign calculation the consumer’s pressure ratio will be a function of the mass flow, thus as offdesign parameter we select zeta
+    # %% component parametrization
 
-# water pump
+    # condenser system
+    condenser_1.set_attr(pr1=0.99, pr2=0.99, ttd_u=SimParameters.upper_terminal_temperature_difference_condenser, design=['pr2', 'ttd_u'], #upper terminal temperature difference as design parameter, pressure ratios
+                offdesign=['zeta2', 'kA_char'])#kA_char is area independent heat transfer coefficient characteristic
+    district_heating_pump.set_attr(eta_s=SimParameters.district_heating_pump_efficiency, design=['eta_s'], offdesign=['eta_s_char'])#efficiency of the district heating pump set to 80%
+    cons_1.set_attr(pr=0.99, design=['pr'], offdesign=['zeta'])#In offdesign calculation the consumer’s pressure ratio will be a function of the mass flow, thus as offdesign parameter we select zeta
 
-pu.set_attr(eta_s=SimParameters.water_pump_efficiency, design=['eta_s'], offdesign=['eta_s_char'])#this is for a 75% pump efficiency
+    # water pump
 
-# evaporator system
+    pu.set_attr(eta_s=SimParameters.water_pump_efficiency, design=['eta_s'], offdesign=['eta_s_char'])#this is for a 75% pump efficiency
 
-kA_char1 = ldc('heat exchanger', 'kA_char1', 'DEFAULT', CharLine)#Characteristic line for hot side heat transfer coefficient. heat transfer coefficient multiplied by the area of HEX, Charline is the linear interpolation equation of the x, y; DEFAULT HEX function is charted here https://tespy.readthedocs.io/en/main/api/tespy.data.html?highlight=DEFAULT#default-characteristics
-kA_char2 = ldc('heat exchanger', 'kA_char2', 'EVAPORATING FLUID', CharLine)#Characteristic line for cold side heat transfer coefficient (ammonia in this case for Mandaree)
+    # evaporator system
 
-ev1.set_attr(pr1=0.98, pr2=0.99, ttd_l=SimParameters.lower_terminal_temperature_difference_evaporator, #pressure_ratio1, pressure_ratio2, terminal_temperature_difference1(terminal temperature difference at the evaporator’s cold side inlet)
-            kA_char1=kA_char1, kA_char2=kA_char2,
-            design=['pr1', 'ttd_l'], offdesign=['zeta1', 'kA_char'])
-erp1.set_attr(eta_s=SimParameters.evaporator_pump_efficiency, design=['eta_s'], offdesign=['eta_s_char'])#eta_s is the Isentropic (adiabatic) efficiency of the process
+    kA_char1 = ldc('heat exchanger', 'kA_char1', 'DEFAULT', CharLine)#Characteristic line for hot side heat transfer coefficient. heat transfer coefficient multiplied by the area of HEX, Charline is the linear interpolation equation of the x, y; DEFAULT HEX function is charted here https://tespy.readthedocs.io/en/main/api/tespy.data.html?highlight=DEFAULT#default-characteristics
+    kA_char2 = ldc('heat exchanger', 'kA_char2', 'EVAPORATING FLUID', CharLine)#Characteristic line for cold side heat transfer coefficient (ammonia in this case for Mandaree)
 
-# compressor system
+    ev1.set_attr(pr1=0.98, pr2=0.99, ttd_l=SimParameters.lower_terminal_temperature_difference_evaporator, #pressure_ratio1, pressure_ratio2, terminal_temperature_difference1(terminal temperature difference at the evaporator’s cold side inlet)
+                kA_char1=kA_char1, kA_char2=kA_char2,
+                design=['pr1', 'ttd_l'], offdesign=['zeta1', 'kA_char'])
+    erp1.set_attr(eta_s=SimParameters.evaporator_pump_efficiency, design=['eta_s'], offdesign=['eta_s_char'])#eta_s is the Isentropic (adiabatic) efficiency of the process
 
-compressor1.set_attr(eta_s=SimParameters.compressor_efficiency, design=['eta_s'], offdesign=['eta_s_char'])#docs say not to set compressor 1 pressure ratio for parallel, if adding another compressor later remove pressure ratio, #pressure ratio 3:1 outlet:inlet
+    # compressor system
 
-# %% connection parametrization
+    compressor1.set_attr(eta_s=SimParameters.compressor_efficiency, design=['eta_s'], offdesign=['eta_s_char'])#docs say not to set compressor 1 pressure ratio for parallel, if adding another compressor later remove pressure ratio, #pressure ratio 3:1 outlet:inlet
 
-# condenser system
+    # %% connection parametrization
 
-c_in_condenser_1.set_attr(fluid={'NH3': 1, 'water': 0})
-cb_district_heating_pump.set_attr(T=SimParameters.temp_district_heat_return, p=SimParameters.pressure_in_bar_dh, fluid={'NH3': 0, 'water': 1})
-condenser1_cons.set_attr(T=SimParameters.dh_supply_temp)#temperature feeding the DH network
+    # condenser system
 
-# evaporator system cold side
+    c_in_condenser_1.set_attr(fluid={'NH3': 1, 'water': 0})
+    cb_district_heating_pump.set_attr(T=SimParameters.temp_district_heat_return, p=SimParameters.pressure_in_bar_dh, fluid={'NH3': 0, 'water': 1})
+    condenser1_cons.set_attr(T=SimParameters.dh_supply_temp)#temperature feeding the DH network
 
-erp1_ev1.set_attr(m=Ref(ves1_dr1, 1.25, 0), p0=5)#pump outlet to evaporator1 Ref(ref_obj, factor, delta)
+    # evaporator system cold side
 
-# evaporator system hot side (from ElectraTherm rejection)
+    erp1_ev1.set_attr(m=Ref(ves1_dr1, 1.25, 0), p0=5)#pump outlet to evaporator1 Ref(ref_obj, factor, delta)
 
-# pumping at constant rate in partial load
-rejected_heat_to_pump.set_attr(T=SimParameters.wasted_heat_design_temperature, p=SimParameters.pressure_in_bar_waste_heat_fluid, fluid={'NH3': 0, 'water': 1},
-               offdesign=['v'])#here I assume we are maintaining 2 bar in the partial load condition from rejected heat reservoir from generators at 38C
-ev1_sink.set_attr(p=SimParameters.return_pressure_from_heat_pump, T=SimParameters.return_temperature_from_heat_pump, design=['T'])#this would be the return temperature to the cooling reservoir from the heat pump
+    # evaporator system hot side (from ElectraTherm rejection)
 
-# %% key paramter (consumer demand)
+    # pumping at constant rate in partial load
+    rejected_heat_to_pump.set_attr(T=SimParameters.wasted_heat_design_temperature, p=SimParameters.pressure_in_bar_waste_heat_fluid, fluid={'NH3': 0, 'water': 1},
+                offdesign=['v'])#here I assume we are maintaining 2 bar in the partial load condition from rejected heat reservoir from generators at 38C
+    ev1_sink.set_attr(p=SimParameters.return_pressure_from_heat_pump, T=SimParameters.return_temperature_from_heat_pump, design=['T'])#this would be the return temperature to the cooling reservoir from the heat pump
 
-cons_1.set_attr(Q=SimParameters.dh_heat_demand_in_watts) #4MW demand, demand unit in watts, this value should be negative to represent a demand on the system
+    # %% key paramter (consumer demand)
 
-# %% Calculation and document output
-#from TESPy Issue #281 and https://tespy.readthedocs.io/en/main/tespy_modules.html#automatic-model-documentation
-# fmt = {
-#     'latex_body': True,  # adds LaTeX body to compile report out of the box
-#     'include_results': True,  # include parameter specification and results
-#     'HeatExchanger': {  # for components of class HeatExchanger
-#         'params': ['Q', 'ttd_l', 'ttd_u', 'pr1', 'pr2']},  # change columns displayed
-#     'Condenser': {  # for components of class HeatExchanger
-#         'params': ['Q', 'ttd_l', 'ttd_u', 'pr1', 'pr2'],
-#         'float_fmt': '{:,.2f}'},  # change float format of data
-#     'Connection': {  # for Connection instances
-#         'p': {'float_fmt': '{:,.4f}'},  # change float format of pressure
-#         's': {'float_fmt': '{:,.4f}'},
-#         'h': {'float_fmt': '{:,.2f}'},
-#         'params': ['m', 'p', 'h', 's'],  # list results of mass flow, ...
-#         'fluid': {'include_results': False}  # exclude results of fluid composition
-#     },
-#     'include_results': True,  # include results
-#     'draft': False  # disable draft mode
-# }
+    cons_1.set_attr(Q=SimParameters.dh_heat_demand_in_watts) #4MW demand, demand unit in watts, this value should be negative to represent a demand on the system
 
-nw.solve('design')#network solve    
-nw.print_results()
-nw.save('heat_pump_water')
-# document_model(nw, filename='report_water_design.tex', fmt=fmt)#output network model to latex report
+    # %% Calculation and document output
+    #from TESPy Issue #281 and https://tespy.readthedocs.io/en/main/tespy_modules.html#automatic-model-documentation
+    # fmt = {
+    #     'latex_body': True,  # adds LaTeX body to compile report out of the box
+    #     'include_results': True,  # include parameter specification and results
+    #     'HeatExchanger': {  # for components of class HeatExchanger
+    #         'params': ['Q', 'ttd_l', 'ttd_u', 'pr1', 'pr2']},  # change columns displayed
+    #     'Condenser': {  # for components of class HeatExchanger
+    #         'params': ['Q', 'ttd_l', 'ttd_u', 'pr1', 'pr2'],
+    #         'float_fmt': '{:,.2f}'},  # change float format of data
+    #     'Connection': {  # for Connection instances
+    #         'p': {'float_fmt': '{:,.4f}'},  # change float format of pressure
+    #         's': {'float_fmt': '{:,.4f}'},
+    #         'h': {'float_fmt': '{:,.2f}'},
+    #         'params': ['m', 'p', 'h', 's'],  # list results of mass flow, ...
+    #         'fluid': {'include_results': False}  # exclude results of fluid composition
+    #     },
+    #     'include_results': True,  # include results
+    #     'draft': False  # disable draft mode
+    # }
 
-# offdesign test
-nw.solve('offdesign', design_path='heat_pump_water')#solve the offdesign values for the network (other projected outcomes)
-# document_model(nw, filename='report_water_offdesign.tex', fmt=fmt)#print these alternatives to a latex report
-# #the following comments are from fwitte
-T_range = [SimParameters.offdesign1_wasted_heat_design_temperature, SimParameters.offdesign2_wasted_heat_design_temperature, SimParameters.offdesign3_wasted_heat_design_temperature, SimParameters.offdesign4_wasted_heat_design_temperature][::-1]#inverted the temperature and heat provision ranges to always start near the design point specifications rather than further away.
-Q_range = np.array([SimParameters.offdesign1_dh_heat_demand_in_watts, SimParameters.offdesign2_dh_heat_demand_in_watts, SimParameters.offdesign3_dh_heat_demand_in_watts, SimParameters.offdesign4_dh_heat_demand_in_watts])[::-1]#Only after restarting from full load after modifying the temperature I read the initial values from the design specs, all other simulations start at the previous solution of the model which is always near the current case.
-df = pd.DataFrame(columns=Q_range / -cons_1.Q.val)
-#In the full load and 35 °C waste heat temperature case, the outlet temperature of the water after the evaporator will be below the minimum temperature limit of the fluid property database, therefore no solution can be found.
-for T in T_range:
-    rejected_heat_to_pump.set_attr(T=T)
-    eps = []
+    nw.solve('design')#network solve    
+    nw.print_results()
+    nw.save('heat_pump_water')
+    # document_model(nw, filename='report_water_design.tex', fmt=fmt)#output network model to latex report
 
-    for Q in Q_range:
-        cons_1.set_attr(Q=-Q)
-        nw.solve('offdesign', design_path='heat_pump_water')
+    # offdesign test
+    nw.solve('offdesign', design_path='heat_pump_water')#solve the offdesign values for the network (other projected outcomes)
+    # document_model(nw, filename='report_water_offdesign.tex', fmt=fmt)#print these alternatives to a latex report
+    # #the following comments are from fwitte
+    T_range = [SimParameters.offdesign1_wasted_heat_design_temperature, SimParameters.offdesign2_wasted_heat_design_temperature, SimParameters.offdesign3_wasted_heat_design_temperature, SimParameters.offdesign4_wasted_heat_design_temperature][::-1]#inverted the temperature and heat provision ranges to always start near the design point specifications rather than further away.
+    Q_range = np.array([SimParameters.offdesign1_dh_heat_demand_in_watts, SimParameters.offdesign2_dh_heat_demand_in_watts, SimParameters.offdesign3_dh_heat_demand_in_watts, SimParameters.offdesign4_dh_heat_demand_in_watts])[::-1]#Only after restarting from full load after modifying the temperature I read the initial values from the design specs, all other simulations start at the previous solution of the model which is always near the current case.
+    df = pd.DataFrame(columns=Q_range / -cons_1.Q.val)
+    #In the full load and 35 °C waste heat temperature case, the outlet temperature of the water after the evaporator will be below the minimum temperature limit of the fluid property database, therefore no solution can be found.
+    for T in T_range:
+        rejected_heat_to_pump.set_attr(T=T)
+        eps = []
 
-        if nw.lin_dep:
-            eps += [np.nan]
-        else:
-            eps += [
-                abs(condenser_1.Q.val) / (compressor1.P.val + erp1.P.val + pu.P.val)
-            ]
+        for Q in Q_range:
+            cons_1.set_attr(Q=-Q)
+            nw.solve('offdesign', design_path='heat_pump_water')
 
-    df.loc[T] = eps
+            if nw.lin_dep:
+                eps += [np.nan]
+            else:
+                eps += [
+                    abs(condenser_1.Q.val) / (compressor1.P.val + erp1.P.val + pu.P.val)
+                ]
 
-df.to_csv('COP_water.csv')
-#make a function here, collect variables into it.
+        df.loc[T] = eps
+
+    df.to_csv('COP_water.csv')
+    #make a function here, collect variables into it.
+
+    

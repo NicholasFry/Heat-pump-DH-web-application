@@ -27,3 +27,5 @@ class SimParameters(models.Model):
 
     def __str__(self):#if you ever print params, if you don't have then you get a memory location
         return self.dh_supply_temp
+
+class SimOutputs()
