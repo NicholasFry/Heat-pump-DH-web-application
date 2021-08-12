@@ -32,24 +32,7 @@
             <option v-for="user in users" :key="user.id" :value="user.id">[[ user.username ]]</option>
         </select><br> -->
         <button @click="createSim">Run Simulation</button>
-    </div>
-    {% endif %} 
-        <ul>
-            <li v-for="poke in pokemon" :key="poke.id">
-                <input v-if="editMode" type="text" v-model="poke.name">
-                <input v-if="editMode" type="text" v-model="poke.height">
-                <input v-if="editMode" type="text" v-model="poke.weight">
-                <input v-if="editMode" type="text" v-model="poke.image_front" placeholder="New image URL">
-            <template v-else>
-                <h3>Pokemon: [[ poke.name ]]</h3>
-                <h4>Height: [[ poke.height ]]</h4>
-                <h4>Weight: [[ poke.weight ]]</h4>
-                <p><img v-bind:src="[[ poke.image_front ]]"></p>
-            </template>
-                <button @click="toggleEdit">[[ editMode ? "Done" : "Edit" ]]</button>
-                <button @click="deletePoke(poke)">Delete Pokemon</button>
-            </li>
-        </ul>
+    </div> 
     </div>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://unpkg.com/vue"></script>
@@ -58,13 +41,13 @@
             el: '#app',
             delimiters: ['[[', ']]'],
             data: {
-                pokemon: [],
+                sim: [],
                 newSim: {
                     "ttd_condenser": "",
                     "ttd_evaporator": "",
                     "water_pump_eff": "",
                     "dh_pump_eff": "",
-                    "evap_pump_eff": [],
+                    "evap_pump_eff": "",
                     "compressor_eff": "",
                     "dh_return_temp": "",
                     "pressure_bar_dh": "",
@@ -83,109 +66,15 @@
                 runSim: function() {
                     axios({
                         method: 'get',
-                        url: '/api_app/pokemon/'
+                        url: '/api_app/'
                     }).then(response => {
-                        this.pokemon = response.data
+                        this.sim = response.data
                     })
                 },
                 toggleEdit: function() {
                     this.editMode = this.editMode ? false : true
                 },
-                createPoke: function() {
-                    axios({
-                        method: "post",
-                        url: '/api_app/pokemon/',
-                        headers: {
-                            'X-CSRFToken': this.csrf_token 
-                        },
-                        data: {
-                            "name": this.newPoke.name,
-                            "height": this.newPoke.height,
-                            "weight": this.newPoke.weight,
-                            "image_front": this.newPoke.image_front,
-                            "caught_by": this.newPoke.caught_by,
-                            "image_back": this.newPoke.image_back,
-                            "number": this.newPoke.number,
-                        }
-                    }).then(response => {
-                        this.loadPokes()
-                        this.newSim: {
-                            "ttd_condenser": "",
-                            "ttd_evaporator": "",
-                            "water_pump_eff": "",
-                            "dh_pump_eff": "",
-                            "evap_pump_eff": [],
-                            "compressor_eff": "",
-                            "dh_return_temp": "",
-                            "pressure_bar_dh": "",
-                            "dh_supply_temp": "",
-                            "waste_design_temp": "",
-                            "waste_design_pressure": "",
-                            "return_pressure_from_hp": "",
-                            "return_temperature_from_hp": "",
-                            "dh_demand_watts": "",
-                        }
-                        this.postErrors = {}
-                    }).catch(error => {
-                        if (error.response.status === 400) {
-                            this.postErrors = error.response.data
-                        }
-                    })
-                },
-                editPoke: function(poke) {
-                    axios({
-                        method: "patch",
-                        url: '/api_app/pokemon/`name`',
-                        headers: {
-                            'X-CSRFToken': this.csrf_token 
-                        },
-                        data: {
-                            "name": this.editedPoke.name,
-                            "height": this.editedPoke.height,
-                            "weight": this.editedPoke.weight,
-                            "image_front": this.editedPoke.image_front,
-                        }
-                    }).then(response => {
-                        this.loadPokes()
-                    })},
-                deletePoke: function(poke) {
-                    console.log(poke)
-                    axios({
-                        method: "delete",
-                        url: `/api_app/pokemon/${poke.id}/`,
-                        headers: {
-                            'X-CSRFToken': this.csrf_token 
-                        },
-                        data: {
-                        }
-                    }).then(response => {
-                        this.loadPokes()
-                        }
-                    )},
-                loadUsers: function() {
-                    axios({
-                        method: 'get',
-                        url: '/api_app/users/'
-                    }).then(response => {
-                        this.users = response.data
-                    })
-                },
-                loadCurrentUser: function() {
-                    axios({
-                        method: 'get',
-                        url: '/api_app/currentuser/'
-                    }).then(response => {
-                        this.currentUser = response.data
-                    })
-                }
             },
-            created: function() {
-                this.runSim()
-                this.loadUsers()
-            },
-            mounted: function() {
-                this.csrf_token = document.querySelector("input[name=csrfmiddlewaretoken]").value
-            }
         })
     </script>
 </body>

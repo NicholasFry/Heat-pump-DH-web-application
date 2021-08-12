@@ -42,7 +42,7 @@ INSTALLED_APPS = [
 
 
     'api_app.apps.ApiAppConfig',
-    'simulation_app.apps.SimulationAppConfig',
+    'simulations_app.apps.SimulationsAppConfig',
 ]
 
 MIDDLEWARE = [
