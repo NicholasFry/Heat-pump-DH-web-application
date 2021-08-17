@@ -14,13 +14,13 @@ from tespy.tools.characteristics import CharLine
 from tespy.tools.characteristics import load_default_char as ldc
 # from tespy.tools import document_model
 
-from .models import *
+from simulations_app.models import SimParameters
 # from .migrations import *
 
 import numpy as np
 import pandas as pd
 
-# sim_parameters = SimParameters.objects.create()
+# sim_parameters = get_object_or_404(SimParameters, id=self.kwargs['pk'])
 # sim_parameters.upper_terminal_temperature_difference_condenser = SimParameters.upper_terminal_temperature_difference_condenser
 # print(sim_parameters.upper_terminal_temperature_difference_condensercd)
 # sim_parameters.lower_terminal_temperature_difference_ecaporator
@@ -38,7 +38,8 @@ import pandas as pd
 # sim_parameters.demand_in_watts
 
 class RunSimulation(APIView):
-    def get(self, request, format=None):
+    def get(self, request, pk, format=None):
+        sim_parameters = get_object_or_404(SimParameters, id=self.kwargs['pk'])
         # %% network
         #Water is used for the cold side of the heat exchanger, for the consumer and for the hot side of the environmental temperature.
         #Ammonia is used as coolant within the heat pump circuit.
@@ -117,38 +118,45 @@ class RunSimulation(APIView):
         nw.add_conns(compressor1_c_out)
 
         # %% component parametrization
-
+        ttd_u=sim_parameters.upper_terminal_temperature_difference_condenser
+        print(ttd_u)
+        print(type(ttd_u))
+        print(type(sim_parameters.wasted_heat_design_temperature))
+        print(type(sim_parameters.dh_heat_demand_in_watts))
+        print(type(sim_parameters.district_heating_pump_efficiency))
+        print(type(sim_parameters.pressure_in_bar_waste_heat_fluid))
+        print(type(sim_parameters.evaporator_pump_efficiency))
         # condenser system
-        condenser_1.set_attr(pr1=0.99, pr2=0.99, ttd_u=get_object_or_404(SimParameters.upper_terminal_temperature_difference_condenser, id=id), design=['pr2', 'ttd_u'], #upper terminal temperature difference as design parameter, pressure ratios
+        condenser_1.set_attr(pr1=0.99, pr2=0.99, ttd_u=sim_parameters.upper_terminal_temperature_difference_condenser, design=['pr2', 'ttd_u'], #upper terminal temperature difference as design parameter, pressure ratios
                     offdesign=['zeta2', 'kA_char'])#kA_char is area independent heat transfer coefficient characteristic
-        district_heating_pump.set_attr(eta_s=SimParameters.district_heating_pump_efficiency, design=['eta_s'], offdesign=['eta_s_char'])#efficiency of the district heating pump set to 80%
+        district_heating_pump.set_attr(eta_s=sim_parameters.district_heating_pump_efficiency, design=['eta_s'], offdesign=['eta_s_char'])#efficiency of the district heating pump set to 80%
         cons_1.set_attr(pr=0.99, design=['pr'], offdesign=['zeta'])#In offdesign calculation the consumer’s pressure ratio will be a function of the mass flow, thus as offdesign parameter we select zeta
 
         # water pump
 
-        pu.set_attr(eta_s=SimParameters.water_pump_efficiency, design=['eta_s'], offdesign=['eta_s_char'])#this is for a 75% pump efficiency
+        pu.set_attr(eta_s=sim_parameters.water_pump_efficiency, design=['eta_s'], offdesign=['eta_s_char'])#this is for a 75% pump efficiency
 
         # evaporator system
 
         kA_char1 = ldc('heat exchanger', 'kA_char1', 'DEFAULT', CharLine)#Characteristic line for hot side heat transfer coefficient. heat transfer coefficient multiplied by the area of HEX, Charline is the linear interpolation equation of the x, y; DEFAULT HEX function is charted here https://tespy.readthedocs.io/en/main/api/tespy.data.html?highlight=DEFAULT#default-characteristics
         kA_char2 = ldc('heat exchanger', 'kA_char2', 'EVAPORATING FLUID', CharLine)#Characteristic line for cold side heat transfer coefficient (ammonia in this case for Mandaree)
 
-        ev1.set_attr(pr1=0.98, pr2=0.99, ttd_l=SimParameters.lower_terminal_temperature_difference_evaporator, #pressure_ratio1, pressure_ratio2, terminal_temperature_difference1(terminal temperature difference at the evaporator’s cold side inlet)
+        ev1.set_attr(pr1=0.98, pr2=0.99, ttd_l=sim_parameters.lower_terminal_temperature_difference_evaporator, #pressure_ratio1, pressure_ratio2, terminal_temperature_difference1(terminal temperature difference at the evaporator’s cold side inlet)
                     kA_char1=kA_char1, kA_char2=kA_char2,
                     design=['pr1', 'ttd_l'], offdesign=['zeta1', 'kA_char'])
-        erp1.set_attr(eta_s=SimParameters.evaporator_pump_efficiency, design=['eta_s'], offdesign=['eta_s_char'])#eta_s is the Isentropic (adiabatic) efficiency of the process
+        erp1.set_attr(eta_s=sim_parameters.evaporator_pump_efficiency, design=['eta_s'], offdesign=['eta_s_char'])#eta_s is the Isentropic (adiabatic) efficiency of the process
 
         # compressor system
 
-        compressor1.set_attr(eta_s=SimParameters.compressor_efficiency, design=['eta_s'], offdesign=['eta_s_char'])#docs say not to set compressor 1 pressure ratio for parallel, if adding another compressor later remove pressure ratio, #pressure ratio 3:1 outlet:inlet
+        compressor1.set_attr(eta_s=sim_parameters.compressor_efficiency, design=['eta_s'], offdesign=['eta_s_char'])#docs say not to set compressor 1 pressure ratio for parallel, if adding another compressor later remove pressure ratio, #pressure ratio 3:1 outlet:inlet
 
         # %% connection parametrization
 
         # condenser system
 
         c_in_condenser_1.set_attr(fluid={'NH3': 1, 'water': 0})
-        cb_district_heating_pump.set_attr(T=SimParameters.temp_district_heat_return, p=SimParameters.pressure_in_bar_dh, fluid={'NH3': 0, 'water': 1})
-        condenser1_cons.set_attr(T=SimParameters.dh_supply_temp)#temperature feeding the DH network
+        cb_district_heating_pump.set_attr(T=sim_parameters.temp_district_heat_return, p=sim_parameters.pressure_in_bar_dh, fluid={'NH3': 0, 'water': 1})
+        condenser1_cons.set_attr(T=sim_parameters.dh_supply_temp)#temperature feeding the DH network
 
         # evaporator system cold side
 
@@ -157,13 +165,13 @@ class RunSimulation(APIView):
         # evaporator system hot side (from ElectraTherm rejection)
 
         # pumping at constant rate in partial load
-        rejected_heat_to_pump.set_attr(T=SimParameters.wasted_heat_design_temperature, p=SimParameters.pressure_in_bar_waste_heat_fluid, fluid={'NH3': 0, 'water': 1},
+        rejected_heat_to_pump.set_attr(T=sim_parameters.wasted_heat_design_temperature, p=sim_parameters.pressure_in_bar_waste_heat_fluid, fluid={'NH3': 0, 'water': 1},
                     offdesign=['v'])#here I assume we are maintaining 2 bar in the partial load condition from rejected heat reservoir from generators at 38C
-        ev1_sink.set_attr(p=SimParameters.return_pressure_from_heat_pump, T=SimParameters.return_temperature_from_heat_pump, design=['T'])#this would be the return temperature to the cooling reservoir from the heat pump
+        ev1_sink.set_attr(p=sim_parameters.return_pressure_from_heat_pump, T=sim_parameters.return_temperature_from_heat_pump, design=['T'])#this would be the return temperature to the cooling reservoir from the heat pump
 
         # %% key paramter (consumer demand)
 
-        cons_1.set_attr(Q=-SimParameters.dh_heat_demand_in_watts) #4MW demand, demand unit in watts, this value should be negative to represent a demand on the system
+        cons_1.set_attr(Q=-sim_parameters.dh_heat_demand_in_watts) #4MW demand, demand unit in watts, this value should be negative to represent a demand on the system
 
         # %% Calculation and document output
         #from TESPy Issue #281 and https://tespy.readthedocs.io/en/main/tespy_modules.html#automatic-model-documentation
@@ -195,10 +203,11 @@ class RunSimulation(APIView):
         nw.solve('offdesign', design_path='heat_pump_water')#solve the offdesign values for the network (other projected outcomes)
         # document_model(nw, filename='report_water_offdesign.tex', fmt=fmt)#print these alternatives to a latex report
         # #the following comments are from fwitte
-        T_range = [SimParameters.wasted_heat_design_temperature-6, SimParameters.wasted_heat_design_temperature-3, SimParameters.wasted_heat_design_temperature+3, SimParameters.wasted_heat_design_temperature+6][::-1]#inverted the temperature and heat provision ranges to always start near the design point specifications rather than further away.
-        Q_range = np.array([SimParameters.dh_heat_demand_in_watts*.60, SimParameters.dh_heat_demand_in_watts*.80, SimParameters.dh_heat_demand_in_watts*1.2, SimParameters.dh_heat_demand_in_watts*1.4])[::-1]#Only after restarting from full load after modifying the temperature I read the initial values from the design specs, all other simulations start at the previous solution of the model which is always near the current case.
+        T_range = [sim_parameters.wasted_heat_design_temperature-6, sim_parameters.wasted_heat_design_temperature-3, sim_parameters.wasted_heat_design_temperature+3, sim_parameters.wasted_heat_design_temperature+6][::-1]#inverted the temperature and heat provision ranges to always start near the design point specifications rather than further away.
+        Q_range = np.array([sim_parameters.dh_heat_demand_in_watts*.60, sim_parameters.dh_heat_demand_in_watts*.80, sim_parameters.dh_heat_demand_in_watts*1.2, sim_parameters.dh_heat_demand_in_watts*1.4])[::-1]#Only after restarting from full load after modifying the temperature I read the initial values from the design specs, all other simulations start at the previous solution of the model which is always near the current case.
         df = pd.DataFrame(columns=Q_range / -cons_1.Q.val)
         #In the full load and 35 °C waste heat temperature case, the outlet temperature of the water after the evaporator will be below the minimum temperature limit of the fluid property database, therefore no solution can be found.
+
         for T in T_range:
             rejected_heat_to_pump.set_attr(T=T)
             eps = []
@@ -216,7 +225,8 @@ class RunSimulation(APIView):
 
             df.loc[T] = eps
 
-        result = df.to_json(orient="table")
+        result = df.to_json()
+        print(result)
         return Response(result)
         #make a function here, collect variables into it.
 

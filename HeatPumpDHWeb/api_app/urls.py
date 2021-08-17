@@ -7,5 +7,5 @@ from .views import *
 
 # urlpatterns = router.urls
 urlpatterns = [
-    path('', RunSimulation.as_view(), name='home')
+    path('<int:pk>/', RunSimulation.as_view(), name='home')
 ]
