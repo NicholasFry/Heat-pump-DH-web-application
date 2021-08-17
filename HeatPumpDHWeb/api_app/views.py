@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http.response import HttpResponseForbidden, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 
 from tespy.networks import Network
 from tespy.components import (
@@ -13,10 +14,28 @@ from tespy.tools.characteristics import CharLine
 from tespy.tools.characteristics import load_default_char as ldc
 # from tespy.tools import document_model
 
-from simulations_app.models import SimParameters
+from .models import *
+# from .migrations import *
 
 import numpy as np
 import pandas as pd
+
+# sim_parameters = SimParameters.objects.create()
+# sim_parameters.upper_terminal_temperature_difference_condenser = SimParameters.upper_terminal_temperature_difference_condenser
+# print(sim_parameters.upper_terminal_temperature_difference_condensercd)
+# sim_parameters.lower_terminal_temperature_difference_ecaporator
+# sim_parameters.water_pump_efficiency
+# sim_parameters.district_heating_pump_efficiency
+# sim_parameters.evaporator_pump_efficiency
+# sim_parameters.compressor_efficiency
+# sim_parameters.temp_district_heat_return
+# sim_parameters.pressure_in_bar_dh
+# sim_parameters.dh_supply_temp
+# sim_parameters.wasted_heat_design_temperature
+# sim_parameters.pressure_in_bar_waste_heat_fluid
+# sim_parameters.return_pressure_from_heat_pump
+# sim_parameters.return_temperature_from_heat_pump
+# sim_parameters.demand_in_watts
 
 class RunSimulation(APIView):
     def get(self, request, format=None):
@@ -100,7 +119,7 @@ class RunSimulation(APIView):
         # %% component parametrization
 
         # condenser system
-        condenser_1.set_attr(pr1=0.99, pr2=0.99, ttd_u=SimParameters.upper_terminal_temperature_difference_condenser, design=['pr2', 'ttd_u'], #upper terminal temperature difference as design parameter, pressure ratios
+        condenser_1.set_attr(pr1=0.99, pr2=0.99, ttd_u=get_object_or_404(SimParameters.upper_terminal_temperature_difference_condenser, id=id), design=['pr2', 'ttd_u'], #upper terminal temperature difference as design parameter, pressure ratios
                     offdesign=['zeta2', 'kA_char'])#kA_char is area independent heat transfer coefficient characteristic
         district_heating_pump.set_attr(eta_s=SimParameters.district_heating_pump_efficiency, design=['eta_s'], offdesign=['eta_s_char'])#efficiency of the district heating pump set to 80%
         cons_1.set_attr(pr=0.99, design=['pr'], offdesign=['zeta'])#In offdesign calculation the consumer’s pressure ratio will be a function of the mass flow, thus as offdesign parameter we select zeta

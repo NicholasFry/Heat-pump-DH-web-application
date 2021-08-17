@@ -1,5 +1,5 @@
 from django.urls import path
-from .models import RunSimulation
+from .views import *
 
 
 # router = DefaultRouter()
