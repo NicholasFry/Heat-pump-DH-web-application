@@ -11,20 +11,20 @@
     {% csrf_token %} 
     <h2>Run a new simulation</h2>
     <div>
-        <input type="text" placeholder="Terminal Temp Diff @ Condenser" v-model="newSim.ttd_condenser"><br>
-        <input type="text" placeholder="Terminal Temp Diff @ Evaporator" v-model="newSim.ttd_evaporator"><br>
-        <input type="text" placeholder="Water Pump Efficiency" v-model="newSim.water_pump_eff"><br>
-        <input type="text" placeholder="District Heating Pump Efficiency" v-model="newSim.weight"><br>
-        <input type="text" placeholder="Evaporator Pump Efficiency" v-model="newSim.evap_pump_eff"><br>
-        <input type="text" placeholder="Compressor Efficiency" v-model="newSim.compressor_eff"><br>
-        <input type="text" placeholder="District Heating Return Temp" v-model="newSim.dh_return_temp"><br>
-        <input type="text" placeholder="Pressure in Bar for DH" v-model="newSim.pressure_bar_dh"><br>
-        <input type="text" placeholder="DH Supply Temperature" v-model="dh_supply_temp"><br>
-        <input type="text" placeholder="Waste Heat Design Temperature" v-model="newSim.waste_design_temp"><br>
-        <input type="text" placeholder="Pressure in Bar of the Waste Heat Fluid" v-model="newSim.waste_design_pressure"><br>
-        <input type="text" placeholder="Return Pressure from Heat Pump" v-model="newSim.return_pressure_from_hp"><br>
-        <input type="text" placeholder="Return Temperature from Heat Pump" v-model="newSim.return_temperature_from_hp"><br>
-        <input type="text" placeholder="DH Heat Demand in Watts" v-model="newSim.dh_demand_watts"><br>
+        <input type="number" placeholder="Terminal Temp Diff @ Condenser" v-model="newSim.ttd_condenser"><br>
+        <input type="number" placeholder="Terminal Temp Diff @ Evaporator" v-model="newSim.ttd_evaporator"><br>
+        <input type="number" placeholder="Water Pump Efficiency" v-model="newSim.water_pump_eff"><br>
+        <input type="number" placeholder="District Heating Pump Efficiency" v-model="newSim.dh_pump_eff"><br>
+        <input type="number" placeholder="Evaporator Pump Efficiency" v-model="newSim.evap_pump_eff"><br>
+        <input type="number" placeholder="Compressor Efficiency" v-model="newSim.compressor_eff"><br>
+        <input type="number" placeholder="District Heating Return Temp" v-model="newSim.dh_return_temp"><br>
+        <input type="number" placeholder="Pressure in Bar for DH" v-model="newSim.pressure_bar_dh"><br>
+        <input type="number" placeholder="DH Supply Temperature" v-model="newSim.dh_supply_temp"><br>
+        <input type="number" placeholder="Waste Heat Design Temperature" v-model="newSim.waste_design_temp"><br>
+        <input type="number" placeholder="Pressure in Bar of the Waste Heat Fluid" v-model="newSim.waste_design_pressure"><br>
+        <input type="number" placeholder="Return Pressure from Heat Pump" v-model="newSim.return_pressure_from_hp"><br>
+        <input type="number" placeholder="Return Temperature from Heat Pump" v-model="newSim.return_temperature_from_hp"><br>
+        <input type="number" placeholder="DH Heat Demand in Watts" v-model="newSim.dh_demand_watts"><br>
         <template v-if="postErrors.name">
             <p v-for="error in postErrors.name">[[ error ]]</p>
         </template>
@@ -43,6 +43,60 @@
             data: {
                 sim: [],
                 newSim: {
+                    "ttd_condenser": 5,
+                    "ttd_evaporator": 5,
+                    "water_pump_eff": .75,
+                    "dh_pump_eff": .80,
+                    "evap_pump_eff": .80,
+                    "compressor_eff": .80,
+                    "dh_return_temp": 50,
+                    "pressure_bar_dh": 10,
+                    "dh_supply_temp": 75,
+                    "waste_design_temp": 35,
+                    "waste_design_pressure": 2,
+                    "return_pressure_from_hp": 2,
+                    "return_temperature_from_hp": 15,
+                    "dh_demand_watts": 4000000,
+                },
+                editMode: false,
+                csrf_token: "",
+                postErrors: {}
+            },
+            methods: {
+                runSim: function() {
+                    axios({
+                        url: '/<int:pk>/'
+                    }).then(response => {
+                        this.sim = response.data
+                        console.log(this.sim)
+                    })
+                },
+                toggleEdit: function() {
+                    this.editMode = this.editMode ? false : true
+                },
+                createSim: function() {
+                    axios({
+                    method: 'post',
+                    url: '/create/',
+                    data: {
+                    "ttd_condenser": this.newSim.ttd_condenser,
+                    "ttd_evaporator": this.newSim.ttd_evaporator,
+                    "water_pump_eff": this.newSim.water_pump_eff,
+                    "evap_pump_eff": this.newSim.evap_pump_eff,
+                    "dh_pump_eff": this.newSim.dh_pump_eff,
+                    "compressor_eff": this.newSim.compressor_eff,
+                    "dh_return_temp": this.newSim.dh_return_temp,
+                    "pressure_bar_dh": this.newSim.pressure_bar_dh,
+                    "dh_supply_temp": this.newSim.dh_supply_temp,
+                    "waste_design_temp": this.newSim.waste_design_temp,
+                    "waste_design_pressure": this.newSim.waste_design_pressure,
+                    "return_pressure_from_hp": this.newSim.return_pressure_from_hp,
+                    "return_temperature_from_hp": this.newSim.return_temperature_from_hp,
+                    "dh_demand_watts": this.newSim.dh_demand_watts,
+                    }
+                }).then(response => {
+                    this.runSim()
+                    this.newSim = {
                     "ttd_condenser": "",
                     "ttd_evaporator": "",
                     "water_pump_eff": "",
@@ -57,23 +111,9 @@
                     "return_pressure_from_hp": "",
                     "return_temperature_from_hp": "",
                     "dh_demand_watts": "",
-                },
-                editMode: false,
-                csrf_token: "",
-                postErrors: {}
-            },
-            methods: {
-                runSim: function() {
-                    axios({
-                        method: 'get',
-                        url: '/api_app/'
-                    }).then(response => {
-                        this.sim = response.data
-                    })
-                },
-                toggleEdit: function() {
-                    this.editMode = this.editMode ? false : true
-                },
+                    }
+                })
+                }
             },
         })
     </script>

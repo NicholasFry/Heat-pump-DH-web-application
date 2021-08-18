@@ -2,6 +2,7 @@ from django.db import models
 
 
 class SimParameters(models.Model):
+    # name = models.CharField(max_length=100, default='user_simulation')
     upper_terminal_temperature_difference_condenser = models.IntegerField(default=5)
     lower_terminal_temperature_difference_evaporator = models.IntegerField(default=5)
     # water_pump_efficiency = models.DecimalField(max_digits=2, decimal_places=2, default=.75)#pass as decimal, maybe FloatField is better?

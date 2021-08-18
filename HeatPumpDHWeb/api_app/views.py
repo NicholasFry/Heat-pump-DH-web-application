@@ -36,8 +36,50 @@ import pandas as pd
 # sim_parameters.return_pressure_from_heat_pump
 # sim_parameters.return_temperature_from_heat_pump
 # sim_parameters.demand_in_watts
-
+# def post(self, request, format=None):
+#     upper_terminal_temperature_difference_condenser = request.get('')
 class RunSimulation(APIView):
+    def post(self, request, format=None):
+        # print(request)
+        # print(request.data)
+        # print(request.POST)
+        all_user_inputs = request.data
+        # print(all_user_inputs)
+        upper_terminal_temperature_difference_condenser = all_user_inputs['ttd_condenser']
+        lower_terminal_temperature_difference_evaporator  = all_user_inputs['ttd_evaporator']
+        water_pump_efficiency = all_user_inputs['water_pump_eff']
+        district_heating_pump_efficiency  = all_user_inputs['dh_pump_eff']
+        evaporator_pump_efficiency = all_user_inputs['evap_pump_eff']
+        compressor_efficiency = all_user_inputs['compressor_eff']
+        temp_district_heat_return = all_user_inputs['dh_return_temp']
+        pressure_in_bar_dh = all_user_inputs['pressure_bar_dh']
+        dh_supply_temp = all_user_inputs['dh_supply_temp']
+        wasted_heat_design_temperature = all_user_inputs['waste_design_temp']
+        pressure_in_bar_waste_heat_fluid = all_user_inputs['waste_design_pressure']
+        return_pressure_from_heat_pump = all_user_inputs['return_pressure_from_hp']
+        return_temperature_from_heat_pump  = all_user_inputs['return_temperature_from_hp']
+        dh_heat_demand_in_watts = all_user_inputs['dh_demand_watts']
+        # print(dh_heat_demand_in_watts)
+        # print(district_heating_pump_efficiency)
+        SimParameters.objects.create(
+        upper_terminal_temperature_difference_condenser=upper_terminal_temperature_difference_condenser,
+        lower_terminal_temperature_difference_evaporator=lower_terminal_temperature_difference_evaporator,
+        water_pump_efficiency=water_pump_efficiency,
+        district_heating_pump_efficiency=district_heating_pump_efficiency,
+        evaporator_pump_efficiency=evaporator_pump_efficiency,
+        compressor_efficiency=compressor_efficiency,
+        temp_district_heat_return=temp_district_heat_return,
+        pressure_in_bar_dh=pressure_in_bar_dh,
+        dh_supply_temp=dh_supply_temp,
+        wasted_heat_design_temperature=wasted_heat_design_temperature,
+        pressure_in_bar_waste_heat_fluid=pressure_in_bar_waste_heat_fluid,
+        return_pressure_from_heat_pump=return_pressure_from_heat_pump,
+        return_temperature_from_heat_pump=return_temperature_from_heat_pump,
+        dh_heat_demand_in_watts=dh_heat_demand_in_watts,
+        )
+        # return Response(stuff)
+        # return RunSimulation.get(self, request, dh_supply_temp)
+
     def get(self, request, pk, format=None):
         sim_parameters = get_object_or_404(SimParameters, id=self.kwargs['pk'])
         # %% network
@@ -118,14 +160,14 @@ class RunSimulation(APIView):
         nw.add_conns(compressor1_c_out)
 
         # %% component parametrization
-        ttd_u=sim_parameters.upper_terminal_temperature_difference_condenser
-        print(ttd_u)
-        print(type(ttd_u))
-        print(type(sim_parameters.wasted_heat_design_temperature))
-        print(type(sim_parameters.dh_heat_demand_in_watts))
-        print(type(sim_parameters.district_heating_pump_efficiency))
-        print(type(sim_parameters.pressure_in_bar_waste_heat_fluid))
-        print(type(sim_parameters.evaporator_pump_efficiency))
+        # ttd_u=sim_parameters.upper_terminal_temperature_difference_condenser
+        # print(ttd_u)
+        # print(type(ttd_u))
+        # print(type(sim_parameters.wasted_heat_design_temperature))
+        # print(type(sim_parameters.dh_heat_demand_in_watts))
+        # print(type(sim_parameters.district_heating_pump_efficiency))
+        # print(type(sim_parameters.pressure_in_bar_waste_heat_fluid))
+        # print(type(sim_parameters.evaporator_pump_efficiency))
         # condenser system
         condenser_1.set_attr(pr1=0.99, pr2=0.99, ttd_u=sim_parameters.upper_terminal_temperature_difference_condenser, design=['pr2', 'ttd_u'], #upper terminal temperature difference as design parameter, pressure ratios
                     offdesign=['zeta2', 'kA_char'])#kA_char is area independent heat transfer coefficient characteristic
@@ -227,7 +269,7 @@ class RunSimulation(APIView):
 
         result = df.to_json()
         print(result)
+        # simulation = SimParameters.objects.create(id=id, )
         return Response(result)
         #make a function here, collect variables into it.
 
-        
