@@ -9,6 +9,6 @@ from .views import *
 # urlpatterns = router.urls
 urlpatterns = [
     path('<int:pk>/', RunSimulation.as_view(), name='home'),
-    path('create/', RunSimulation.as_view(), name='create'),
+    path('create/', PrepareSimulation.as_view(), name='create'),
     # path('runsim/', RunSimulation.as_view(), name='runsim'),
 ]

@@ -3,6 +3,7 @@ from django.db import models
 
 class SimParameters(models.Model):
     # name = models.CharField(max_length=100, default='user_simulation')
+    # id = models.PositiveIntegerField(primary_key=True, db_column='id')
     upper_terminal_temperature_difference_condenser = models.IntegerField(default=5)
     lower_terminal_temperature_difference_evaporator = models.IntegerField(default=5)
     # water_pump_efficiency = models.DecimalField(max_digits=2, decimal_places=2, default=.75)#pass as decimal, maybe FloatField is better?
@@ -31,4 +32,4 @@ class SimParameters(models.Model):
     # offdesign4_dh_heat_demand_in_watts = dh_heat_demand_in_watts*1.4
 
     def __str__(self):#if you ever print params, if you don't have then you get a memory location
-        return self.dh_supply_temp
+        return f'this object is {self.id}'

@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
+from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 from django.http.response import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -38,7 +39,7 @@ import pandas as pd
 # sim_parameters.demand_in_watts
 # def post(self, request, format=None):
 #     upper_terminal_temperature_difference_condenser = request.get('')
-class RunSimulation(APIView):
+class PrepareSimulation(CreateAPIView):
     def post(self, request, format=None):
         # print(request)
         # print(request.data)
@@ -77,9 +78,14 @@ class RunSimulation(APIView):
         return_temperature_from_heat_pump=return_temperature_from_heat_pump,
         dh_heat_demand_in_watts=dh_heat_demand_in_watts,
         )
-        # return Response(stuff)
-        # return RunSimulation.get(self, request, dh_supply_temp)
+        stuff = SimParameters.objects.last()#this means row id
 
+        # print(stuff)
+        # print(stuff.id)
+        # print(stuff.pk)
+        return Response(stuff.id)
+        # return RunSimulation.get(self, request, dh_supply_temp)
+class RunSimulation(APIView):
     def get(self, request, pk, format=None):
         sim_parameters = get_object_or_404(SimParameters, id=self.kwargs['pk'])
         # %% network

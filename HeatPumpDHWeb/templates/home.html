@@ -33,6 +33,27 @@
         </select><br> -->
         <button @click="createSim">Run Simulation</button>
     </div> 
+    <ul>
+        <template v-if="ran">
+            <h3>Simulation Number: [[ row ]] </h3>
+            <h4>Single-Stage Centralized Heat Pump Energy Efficiency for District Heating
+                <table class="w3-table-all w3-centered w3-hoverable">
+                <tr>
+                    <th>Heat Load Factor:</th>
+                    <div v-for="(value, key) in sim" :key="key">
+                    [[ parseFloat(key).toFixed(1) ]]
+                    </div>
+                </tr>
+                <div v-for="(value, key) in sim" :key="key">
+                [[ parseFloat(key).toFixed(1) ]]
+                    <div v-for="(cop, temp) in value" :key="temp"  >
+                    Waste Heat Temperature (Celsius): [[ parseFloat(temp).toFixed(0) ]] Coefficient of Performance: [[ parseFloat(cop).toFixed(2) ]]
+                    </div>
+                </div>
+                </table>
+            </h4>
+        </template>
+    </ul>
     </div>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://unpkg.com/vue"></script>
@@ -41,7 +62,11 @@
             el: '#app',
             delimiters: ['[[', ']]'],
             data: {
+                ran: false,
+                row: 0,
                 sim: [],
+                sim_json: {},
+                currentsim: null,
                 newSim: {
                     "ttd_condenser": 5,
                     "ttd_evaporator": 5,
@@ -65,10 +90,12 @@
             methods: {
                 runSim: function() {
                     axios({
-                        url: '/<int:pk>/'
+                    url: `/${this.row}/`
                     }).then(response => {
-                        this.sim = response.data
-                        console.log(this.sim)
+                        sim_json = JSON.parse(response.data)
+                        console.log(sim_json)
+                        this.sim = sim_json
+                        this.ran = true
                     })
                 },
                 toggleEdit: function() {
@@ -93,25 +120,12 @@
                     "return_pressure_from_hp": this.newSim.return_pressure_from_hp,
                     "return_temperature_from_hp": this.newSim.return_temperature_from_hp,
                     "dh_demand_watts": this.newSim.dh_demand_watts,
+                    
                     }
                 }).then(response => {
-                    this.runSim()
-                    this.newSim = {
-                    "ttd_condenser": "",
-                    "ttd_evaporator": "",
-                    "water_pump_eff": "",
-                    "dh_pump_eff": "",
-                    "evap_pump_eff": "",
-                    "compressor_eff": "",
-                    "dh_return_temp": "",
-                    "pressure_bar_dh": "",
-                    "dh_supply_temp": "",
-                    "waste_design_temp": "",
-                    "waste_design_pressure": "",
-                    "return_pressure_from_hp": "",
-                    "return_temperature_from_hp": "",
-                    "dh_demand_watts": "",
-                    }
+                    this.row = response.data
+                    this.runSim(response.data)
+                    // console.log(response.data)
                 })
                 }
             },
