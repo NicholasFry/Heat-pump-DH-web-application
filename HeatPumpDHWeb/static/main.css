@@ -5,4 +5,34 @@
 .displayed {
     display: block;
     margin-left: auto;
-    margin-right: auto }
+    margin-right: auto 
+}
+.loader {
+    position: absolute;
+    top: 10px;
+    bottom: 10px;
+    left: 20%;
+    right: 20%;
+    z-index: 1;
+    border-top: 6rem solid rgb(255, 0, 234);
+    border-right: 6rem solid rgb(255, 4, 150);
+    border-bottom: 6rem solid rgb(255, 0, 98);
+    border-left: 15px solid rgb(252, 0, 0);
+    border-radius: 100%;
+    width: 70rem;
+    height: 70rem;
+    -webkit-animation: spin 60s linear infinite;
+    animation: spin 2s linear infinite;
+    background-image: url("https://www.pnglib.com/wp-content/uploads/2020/01/albert-einstein-thinking_5e270f2b22c37.png");
+    background-size: 100%;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+@-webkit-keyframes animatebottom {
+    from { bottom:-100px; opacity:0 } 
+    to { bottom:0px; opacity: 1; }
+}

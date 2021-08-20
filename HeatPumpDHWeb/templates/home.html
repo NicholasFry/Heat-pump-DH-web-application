@@ -1,3 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -94,6 +96,7 @@
             </select><br> -->
             <button @click="createSim">Run Simulation</button>
         </form> 
+        <div class="loader" v-if="is_loading"></div>
         </div>
     <ul>
         <template v-if="ran" id="results">
@@ -104,12 +107,12 @@
                 <hr> Heat Load Factor: [[ parseFloat(key).toFixed(1) ]] <hr>
                     <div v-for="(cop, temp) in value" :key="temp"  id="something">
                     Waste Heat Temperature (Celsius): [[ parseFloat(temp).toFixed(0) ]] | Coefficient of Performance: [[ parseFloat(cop).toFixed(2) ]]
-                    <br>
+                    <hr>
                     </div>
                 </div>
                 </table>
             </h4>
-            <p>This simulation is run using Thermal Engineering Systems in Python (TESPy). Any errors are the developer's own.<br><br>
+            <p>This simulation is run using Thermal Engineering Systems in Python (TESPy). Any errors are the website developer's own (Nicholas Fry).<br><br>
             Witte, Francesco & Tuschy, Ilja. (2020). TESPy: Thermal Engineering Systems in Python. Journal of Open Source Software. 5. 2178. <a href="https://doi.org/10.21105/joss.02178">https://doi.org/10.21105/joss.02178</a> </p>
         </template>
     </ul>
@@ -122,6 +125,7 @@
             delimiters: ['[[', ']]'],
             data: {
                 ran: false,
+                is_loading: false,
                 row: 0,
                 sim: [],
                 sim_json: {},
@@ -155,6 +159,7 @@
                         console.log(sim_json)
                         this.sim = sim_json
                         this.ran = true
+                        this.is_loading = false
                     })
                 },
                 toggleEdit: function() {
@@ -182,6 +187,7 @@
                     
                     }
                 }).then(response => {
+                    this.is_loading = true
                     this.row = response.data
                     this.runSim(response.data)
                     // console.log(response.data)
@@ -192,3 +198,4 @@
     </script>
 </body>
 </html>
+{% endblock content %}
