@@ -1,3 +1,17 @@
+body {
+    background-color: aquamarine;
+}
+header {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+img {
+    border-radius: 50%;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    margin-bottom: 1rem;
+}
+footer {
+    box-shadow: 3 4px 8px 3 rgba(0, 0, 0, 0.2), 4 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
 #something {
     border:1px solid red;
     text-align: center 

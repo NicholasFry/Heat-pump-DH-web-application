@@ -104,15 +104,15 @@
             <h4>Single-Stage Centralized Heat Pump Energy Efficiency for District Heating
                 <table class="w3-table-all w3-centered w3-hoverable">
                 <div v-for="(value, key) in sim" :key="key">
-                <hr> Heat Load Factor: [[ parseFloat(key).toFixed(1) ]] <hr>
+                <hr><h4><em>Heat Load Factor:</em></h4> [[ parseFloat(key).toFixed(1) ]] <hr>
                     <div v-for="(cop, temp) in value" :key="temp"  id="something">
-                    Waste Heat Temperature (Celsius): [[ parseFloat(temp).toFixed(0) ]] | Coefficient of Performance: [[ parseFloat(cop).toFixed(2) ]]
+                    Waste Heat Supply Temperature (Celsius): [[ parseFloat(temp).toFixed(0) ]] | Coefficient of Performance: [[ parseFloat(cop).toFixed(2) ]]
                     <hr>
                     </div>
                 </div>
                 </table>
             </h4>
-            <p>This simulation is run using Thermal Engineering Systems in Python (TESPy). Any errors are the website developer's own (Nicholas Fry).<br><br>
+            <p>This simulation is run using Thermal Engineering Systems in Python (TESPy). Any errors are the website developer's own (<a href="http://www.nicholasfry.net">Nicholas Fry).</a><br><br>
             Witte, Francesco & Tuschy, Ilja. (2020). TESPy: Thermal Engineering Systems in Python. Journal of Open Source Software. 5. 2178. <a href="https://doi.org/10.21105/joss.02178">https://doi.org/10.21105/joss.02178</a> </p>
         </template>
     </ul>
