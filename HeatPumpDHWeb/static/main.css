@@ -1,0 +1,8 @@
+#something {
+    border:1px solid red;
+    text-align: center 
+}
+.displayed {
+    display: block;
+    margin-left: auto;
+    margin-right: auto }
