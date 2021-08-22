@@ -22,5 +22,8 @@ urlpatterns = [
     # path('', include('simulations_app.urls')),
     path('home/', TemplateView.as_view(template_name='home.html'), name='home'),
     path('', TemplateView.as_view(template_name='base.html'), name='base'),
+    path('about/', TemplateView.as_view(template_name='about.html'), name='about'),
+    path('share/', TemplateView.as_view(template_name='share.html'), name='share'),
+    path('contact/', TemplateView.as_view(template_name='contact.html'), name='contact'),
     path('', include('api_app.urls')),
 ]
