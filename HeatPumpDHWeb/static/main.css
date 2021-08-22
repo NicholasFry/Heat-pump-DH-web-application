@@ -8,6 +8,7 @@ header {
     border-radius: 50%;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     margin-bottom: 1rem;
+    max-width: 70%;
 }
 footer {
     box-shadow: 3 4px 8px 3 rgba(0, 0, 0, 0.2), 4 6px 20px 0 rgba(0, 0, 0, 0.19);
@@ -54,6 +55,7 @@ button:hover {
     background-size: 100%;
     background-position: center center;
     background-repeat: no-repeat;
+    max-width: 100%;
 }
 @keyframes spin {
     0% { transform: rotate(0deg); }
