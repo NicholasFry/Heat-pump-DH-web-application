@@ -15,86 +15,96 @@
     <div id="app">
     {% csrf_token %} 
     <h2>Run a new simulation</h2>
-        <img alt="some random image" class="displayed" src="https://github.com/NicholasFry/Heat-pump-DH-web-application/blob/main/HeatPumpDHWeb/HP_app_2.png?raw=true">
+        <img alt="heat pump image" class="displayed" src="https://github.com/NicholasFry/Heat-pump-DH-web-application/blob/main/HeatPumpDHWeb/HP_app_2.png?raw=true">
         <div class="grid-container" style="grid-template-columns:auto auto auto">
         <form>
+        <div class="w3-card-4">
+
+        <header class="w3-container w3-blue">
+        <h2>Enter your known system parameters.</h2>
+        </header>
+
+        <div class="w3-container">
         <div class="w3-row">
-            <div class="w3-col s6 w3-green w3-center">
-                <label for="ttd_u">Terminal Temp Diff @ Condenser:</label>
+            <div class="w3-col s6 w3-blue-gray w3-center">
+                <label for="ttd_u" class="w3-monospace w3-wide">Terminal Temperature Difference @ Condenser:</label>
                 <input type="number" placeholder="Terminal Temp Diff @ Condenser" v-model="newSim.ttd_condenser" name="ttd_u" style='width:5em'>
             </div>
-            <div class="w3-col s6 w3-green w3-center">
-                <label for="ttd_l">Terminal Temp Diff @ Evaporator:</label>
+            <div class="w3-col s6 w3-blue-gray w3-center">
+                <label for="ttd_l" class="w3-monospace w3-wide">Terminal Temperature Difference @ Evaporator:</label>
                 <input type="number" placeholder="Terminal Temp Diff @ Evaporator" v-model="newSim.ttd_evaporator" name="ttd_l" style='width:5em'>
             </div>
         </div>
         <div class="w3-row">
             <div class="w3-col s6 w3-orange w3-center">
-                <label for="water_pump_n">Water Pump Efficiency:</label>
+                <label for="water_pump_n" class="w3-monospace w3-wide">Water Pump Efficiency:</label>
                 <input type="number" placeholder="Water Pump Efficiency" v-model="newSim.water_pump_eff" name="water_pump_n" style='width:5em'>
             </div>
             <div class="w3-col s6 w3-orange w3-center">
-                <label for="dh_hp_n">District Heating Pump Efficiency:</label>
+                <label for="dh_hp_n" class="w3-monospace w3-wide">District Heating Pump Efficiency:</label>
                 <input type="number" placeholder="District Heating Pump Efficiency" v-model="newSim.dh_pump_eff" name="dh_hp_n" style='width:5em'>
             </div>
         </div>
         <div class="w3-row">
-            <div class="w3-col s6 w3-green w3-center">
-                <label for="ev_pump_n">Evaporator Pump Efficiency:</label>
+            <div class="w3-col s6 w3-blue-gray w3-center">
+                <label for="ev_pump_n" class="w3-monospace w3-wide">Evaporator Pump Efficiency:</label>
                 <input type="number" placeholder="Evaporator Pump Efficiency" v-model="newSim.evap_pump_eff" name="ev_pump_n" style='width:5em'>
             </div>
-            <div class="w3-col s6 w3-green w3-center">
-                <label for="comp_n">Compressor Efficiency:</label>
+            <div class="w3-col s6 w3-blue-gray w3-center">
+                <label for="comp_n" class="w3-monospace w3-wide">Compressor Efficiency:</label>
                 <input type="number" placeholder="Compressor Efficiency" v-model="newSim.compressor_eff" name="comp_n" style='width:5em'>
             </div>
         </div>
         <div class="w3-row">
             <div class="w3-col s6 w3-orange w3-center">
-                <label for="dh_return_temp">District Heating Return Temp:</label>
+                <label for="dh_return_temp" class="w3-monospace w3-wide">District Heating Return Temp:</label>
                 <input type="number" placeholder="District Heating Return Temp" v-model="newSim.dh_return_temp" name="dh_return_temp" style='width:5em'>
             </div>
             <div class="w3-col s6 w3-orange w3-center">
-                <label for="pr_bar_dh">Pressure in Bar for District Heating:</label>
+                <label for="pr_bar_dh" class="w3-monospace w3-wide">Pressure in Bar for District Heating:</label>
                 <input type="number" placeholder="Pressure in Bar for DH" v-model="newSim.pressure_bar_dh" name="pr_bar_dh" style='width:5em'>
             </div>
         </div>
         <div class="w3-row">
-            <div class="w3-col s6 w3-green w3-center">
-                <label for="dh_supply_temp">DH Supply Temperature:</label>
+            <div class="w3-col s6 w3-blue-gray w3-center">
+                <label for="dh_supply_temp" class="w3-monospace w3-wide">DH Supply Temperature:</label>
                 <input type="number" placeholder="DH Supply Temperature" v-model="newSim.dh_supply_temp" name="dh_supply_temp" style='width:5em'>
             </div>
-            <div class="w3-col s6 w3-green w3-center">
-                <label for="waste_heat_temp">Waste Heat Design Temperature:</label>
+            <div class="w3-col s6 w3-blue-gray w3-center">
+                <label for="waste_heat_temp" class="w3-monospace w3-wide">Waste Heat Design Temperature:</label>
                 <input type="number" placeholder="Waste Heat Design Temperature" v-model="newSim.waste_design_temp" name="waste_heat_temp" style='width:5em'>
             </div>
         </div>
         <div class="w3-row">
             <div class="w3-col s6 w3-orange w3-center">
-                <label for="waste_design_pressure">Pressure in Bar of the Waste Heat Fluid:</label>
+                <label for="waste_design_pressure" class="w3-monospace w3-wide">Pressure in Bar of the Waste Heat Fluid:</label>
                 <input type="number" placeholder="Pressure in Bar of the Waste Heat Fluid" v-model="newSim.waste_design_pressure" name="waste_heat_pump" style='width:5em'>
             </div>
             <div class="w3-col s6 w3-orange w3-center">
-                <label for="return_pressure_from_hp">Return Pressure from Heat Pump:</label>
+                <label for="return_pressure_from_hp" class="w3-monospace w3-wide">Return Pressure from Heat Pump:</label>
                 <input type="number" placeholder="Return Pressure from Heat Pump" v-model="newSim.return_pressure_from_hp" name="return_pressure_from_hp" style='width:5em'>
             </div>
         </div>
         <div class="w3-row">
-            <div class="w3-col s6 w3-green w3-center">
-                <label for="return_temperature_from_hp">Return Temperature from Heat Pump:</label>
+            <div class="w3-col s6 w3-blue-gray w3-center">
+                <label for="return_temperature_from_hp" class="w3-monospace w3-wide">Return Temperature from Heat Pump:</label>
                 <input type="number" placeholder="Return Temperature from Heat Pump" v-model="newSim.return_temperature_from_hp" name="return_temperature_from_hp" style='width:5em'>
             </div>
-            <div class="w3-col s6 w3-green w3-center">
-                <label for="dh_demand_watts">DH Heat Demand in Watts:</label>
+            <div class="w3-col s6 w3-blue-gray w3-center">
+                <label for="dh_demand_watts" class="w3-monospace w3-wide">DH Heat Demand in Watts:</label>
                 <input type="number" placeholder="DH Heat Demand in Watts" v-model="newSim.dh_demand_watts" name="dh_demand_watts" style='width:8em'>
             </div>
         </div>
             <template v-if="postErrors.name">
                 <p v-for="error in postErrors.name">[[ error ]]</p>
             </template>
-            <!-- <select v-model="newPoke.author">
-                <option v-for="user in users" :key="user.id" :value="user.id">[[ user.username ]]</option>
-            </select><br> -->
-            <button @click="createSim">Run Simulation</button>
+        </div>
+
+        <footer class="w3-container w3-blue">
+        <button @click="createSim" class="w3-margin">Run Simulation</button>
+        </footer>
+
+        </div>
         </form> 
         <div class="loader" v-if="is_loading"></div>
         </div>

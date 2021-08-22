@@ -21,6 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # path('', include('simulations_app.urls')),
     path('home/', TemplateView.as_view(template_name='home.html'), name='home'),
-    path('base/', TemplateView.as_view(template_name='base.html'), name='base'),
+    path('', TemplateView.as_view(template_name='base.html'), name='base'),
     path('', include('api_app.urls')),
 ]

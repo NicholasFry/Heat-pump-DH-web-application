@@ -10,14 +10,20 @@
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link href="{% static 'main.css' %}" rel="stylesheet">
 </head>
-<body>
+<body class="w3-margin">
     <header>
         <div class="w3-container w3-purple">
-            <h1 class="w3-center w3-serif"><a href="{% url 'home' %}">Low-carbon District Heating Assessments</a></h1>
+            <h1 class="w3-center w3-san-serif">Low-carbon District Heating Assessments</h1>
         </div>
     </header>
+    <div class="w3-bar w3-black" id="nav">
+        <a href="#" class="w3-bar-item w3-button w3-mobile">Start</a>
+        <a href="#" class="w3-bar-item w3-button w3-mobile">About</a>
+        <a href="#" class="w3-bar-item w3-button w3-mobile">Share Results</a>
+        <a href="#" class="w3-bar-item w3-button w3-mobile">Contact Us</a>
+    </div>
     <div>
-        <h3 class="w3-center w3-serif">Click the link above to begin a preliminary assessment for district heating using a centralized heat pump from your local resource.<br>
+        <h3 class="w3-center w3-serif"><a href="{% url 'home' %}">Click here</a> to begin a preliminary assessment for district heating using a centralized heat pump from your local resource.<br>
         Each assessment weighs 4 off-design load factors and 4 off-design supply temperatures from your known resource values.<h3>
     </div>
     <div class="container">

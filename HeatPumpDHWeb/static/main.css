@@ -12,6 +12,19 @@ img {
 footer {
     box-shadow: 3 4px 8px 3 rgba(0, 0, 0, 0.2), 4 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
+button {
+    box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(30, 253, 0, 0.19);
+    padding: 15px 32px;
+    color: white;
+    background-color: purple;
+  }
+button:hover {
+    background-color: chartreuse;
+    color: black;
+}
+#nav {
+    box-shadow: 0px 5px 6px grey;;
+}
 #something {
     border:1px solid red;
     text-align: center 
