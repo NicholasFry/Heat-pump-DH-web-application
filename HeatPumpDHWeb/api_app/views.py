@@ -13,13 +13,20 @@ from tespy.components import (
 from tespy.connections import Connection, Ref
 from tespy.tools.characteristics import CharLine
 from tespy.tools.characteristics import load_default_char as ldc
-# from tespy.tools import document_model
+from tespy.tools import document_model
 
 from simulations_app.models import SimParameters
 # from .migrations import *
 
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+import os
+import platform
+import subprocess
+
 
 # sim_parameters = get_object_or_404(SimParameters, id=self.kwargs['pk'])
 # sim_parameters.upper_terminal_temperature_difference_condenser = SimParameters.upper_terminal_temperature_difference_condenser
@@ -223,38 +230,66 @@ class RunSimulation(APIView):
 
         # %% Calculation and document output
         #from TESPy Issue #281 and https://tespy.readthedocs.io/en/main/tespy_modules.html#automatic-model-documentation
-        # fmt = {
-        #     'latex_body': True,  # adds LaTeX body to compile report out of the box
-        #     'include_results': True,  # include parameter specification and results
-        #     'HeatExchanger': {  # for components of class HeatExchanger
-        #         'params': ['Q', 'ttd_l', 'ttd_u', 'pr1', 'pr2']},  # change columns displayed
-        #     'Condenser': {  # for components of class HeatExchanger
-        #         'params': ['Q', 'ttd_l', 'ttd_u', 'pr1', 'pr2'],
-        #         'float_fmt': '{:,.2f}'},  # change float format of data
-        #     'Connection': {  # for Connection instances
-        #         'p': {'float_fmt': '{:,.4f}'},  # change float format of pressure
-        #         's': {'float_fmt': '{:,.4f}'},
-        #         'h': {'float_fmt': '{:,.2f}'},
-        #         'params': ['m', 'p', 'h', 's'],  # list results of mass flow, ...
-        #         'fluid': {'include_results': False}  # exclude results of fluid composition
-        #     },
-        #     'include_results': True,  # include results
-        #     'draft': False  # disable draft mode
-        # }
+        fmt = {
+            'latex_body': True,  # adds LaTeX body to compile report out of the box
+            'include_results': True,  # include parameter specification and results
+            'HeatExchanger': {  # for components of class HeatExchanger
+                'params': ['Q', 'ttd_l', 'ttd_u', 'pr1', 'pr2']},  # change columns displayed
+            'Condenser': {  # for components of class HeatExchanger
+                'params': ['Q', 'ttd_l', 'ttd_u', 'pr1', 'pr2'],
+                'float_fmt': '{:,.2f}'},  # change float format of data
+            'Connection': {  # for Connection instances
+                'p': {'float_fmt': '{:,.4f}'},  # change float format of pressure
+                's': {'float_fmt': '{:,.4f}'},
+                'h': {'float_fmt': '{:,.2f}'},
+                'params': ['m', 'p', 'h', 's'],  # list results of mass flow, ...
+                'fluid': {'include_results': False}  # exclude results of fluid composition
+            },
+            'include_results': True,  # include results
+            'draft': False  # disable draft mode
+        }
+        # path = { '*/report/'}
 
         nw.solve('design')#network solve    
-        nw.print_results()
+        # raw_iterations = nw.print_results()
         nw.save('heat_pump_water')
-        # document_model(nw, filename='report_water_design.tex', fmt=fmt)#output network model to latex report
-
+        document_model(nw, filename='report_water_design.tex', fmt=fmt)#output network model to latex report
         # offdesign test
         nw.solve('offdesign', design_path='heat_pump_water')#solve the offdesign values for the network (other projected outcomes)
         # document_model(nw, filename='report_water_offdesign.tex', fmt=fmt)#print these alternatives to a latex report
         # #the following comments are from fwitte
         T_range = [sim_parameters.wasted_heat_design_temperature-6, sim_parameters.wasted_heat_design_temperature-3, sim_parameters.wasted_heat_design_temperature, sim_parameters.wasted_heat_design_temperature+3, sim_parameters.wasted_heat_design_temperature+6][::-1]#inverted the temperature and heat provision ranges to always start near the design point specifications rather than further away.
         Q_range = np.array([sim_parameters.dh_heat_demand_in_watts*.60, sim_parameters.dh_heat_demand_in_watts*.80, sim_parameters.dh_heat_demand_in_watts, sim_parameters.dh_heat_demand_in_watts*1.2, sim_parameters.dh_heat_demand_in_watts*1.4])[::-1]#Only after restarting from full load after modifying the temperature I read the initial values from the design specs, all other simulations start at the previous solution of the model which is always near the current case.
+        # df2 = pd.DataFrame(columns=Q_range / -cons_1.Q.val)
+        # print(df2)
         df = pd.DataFrame(columns=Q_range / -cons_1.Q.val)
         #In the full load and 35 °C waste heat temperature case, the outlet temperature of the water after the evaporator will be below the minimum temperature limit of the fluid property database, therefore no solution can be found.
+        # parser = argparse.ArgumentParser()
+        # parser.add_argument("report", type=Path)
+        # p = parser.parse_args()
+
+        # TeX source filename
+        # tex_filename = '/report/report_water_design.tex'
+        # filename, ext = os.path.splitext(tex_filename)
+        # # the corresponding PDF filename
+        # pdf_filename = filename + '.pdf'
+
+        # # compile TeX file
+        # subprocess.run(['pdflatex', '-interaction=nonstopmode', tex_filename])
+
+        # # check if PDF is successfully generated
+        # if not os.path.exists(pdf_filename):
+        #     raise RuntimeError('PDF output not found')
+
+        # # open PDF with platform-specific command
+        # if platform.system().lower() == 'darwin':
+        #     subprocess.run(['open', pdf_filename])
+        # elif platform.system().lower() == 'windows':
+        #     os.startfile(pdf_filename)
+        # elif platform.system().lower() == 'linux':
+        #     subprocess.run(['xdg-open', pdf_filename])
+        # else:
+        #     raise RuntimeError('Unknown operating system "{}"'.format(platform.system()))
 
         for T in T_range:
             rejected_heat_to_pump.set_attr(T=T)
@@ -272,9 +307,10 @@ class RunSimulation(APIView):
                     ]
 
             df.loc[T] = eps
-
+            # df2.loc[T] = eps
         result = df.to_json()
-        print(result)
+        # sns.lineplot()
+        # csv_result = df.to_csv()
         # simulation = SimParameters.objects.create(id=id, )
         return Response(result)
         #make a function here, collect variables into it.

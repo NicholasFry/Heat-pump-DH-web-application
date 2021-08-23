@@ -12,14 +12,12 @@
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 </head>
 <body>
-    <div id="app">
     {% csrf_token %} 
     <h2>Run a new simulation</h2>
         <img alt="heat pump image" class="displayed" src="https://github.com/NicholasFry/Heat-pump-DH-web-application/blob/main/HeatPumpDHWeb/HP_app_2.png?raw=true" id="schematic">
-        <div class="grid-container" style="grid-template-columns:auto auto auto">
+        
         <form>
-        <div class="w3-card-4">
-
+        <div class="w3-card-4 w3-margin w3-blue">
         <header class="w3-container w3-blue">
         <h2>Enter your known system parameters.</h2>
         </header>
@@ -28,21 +26,21 @@
         <div class="w3-row">
             <div class="w3-col s6 w3-blue-gray w3-center">
                 <label for="ttd_u" class="w3-monospace w3-wide">Terminal Temperature Difference @ Condenser:</label>
-                <input type="number" placeholder="Terminal Temp Diff @ Condenser" v-model="newSim.ttd_condenser" name="ttd_u" style='width:5em'>
+                <input type="number" class= "w3-center" placeholder="Terminal Temp Diff @ Condenser" v-model="newSim.ttd_condenser" name="ttd_u" style='width:5em'>
             </div>
             <div class="w3-col s6 w3-blue-gray w3-center">
                 <label for="ttd_l" class="w3-monospace w3-wide">Terminal Temperature Difference @ Evaporator:</label>
-                <input type="number" placeholder="Terminal Temp Diff @ Evaporator" v-model="newSim.ttd_evaporator" name="ttd_l" style='width:5em'>
+                <input type="number" class= "w3-center" placeholder="Terminal Temp Diff @ Evaporator" v-model="newSim.ttd_evaporator" name="ttd_l" style='width:5em'>
             </div>
         </div>
         <div class="w3-row">
             <div class="w3-col s6 w3-orange w3-center">
                 <label for="water_pump_n" class="w3-monospace w3-wide">Water Pump Efficiency:</label>
-                <input type="number" placeholder="Water Pump Efficiency" v-model="newSim.water_pump_eff" name="water_pump_n" style='width:5em'>
+                <input type="number" class= "w3-center" placeholder="Water Pump Efficiency" v-model="newSim.water_pump_eff" name="water_pump_n" style='width:5em'>
             </div>
             <div class="w3-col s6 w3-orange w3-center">
                 <label for="dh_hp_n" class="w3-monospace w3-wide">District Heating Pump Efficiency:</label>
-                <input type="number" placeholder="District Heating Pump Efficiency" v-model="newSim.dh_pump_eff" name="dh_hp_n" style='width:5em'>
+                <input type="number" class= "w3-center" placeholder="District Heating Pump Efficiency" v-model="newSim.dh_pump_eff" name="dh_hp_n" style='width:5em'>
             </div>
         </div>
         <div class="w3-row">
@@ -105,19 +103,18 @@
         </footer>
 
         </div>
-        </form> 
         <div class="loader" v-if="is_loading"></div>
-        </div>
+        </form>
     <ul>
         <template v-if="ran" id="results">
             <h3>Simulation Number: [[ row ]] </h3>
             <h4>Single-Stage Centralized Heat Pump Energy Efficiency for District Heating
                 <table class="w3-table-all w3-centered w3-hoverable">
-                <div v-for="(value, key) in sim" :key="key">
-                <hr><h4><em>Heat Load Factor:</em></h4> [[ parseFloat(key).toFixed(1) ]] <hr>
-                    <div v-for="(cop, temp) in value" :key="temp"  id="something">
+                <hr>
+                <div v-for="(value, key) in sim" :key="key" id="something_too">
+                <h4><em>Heat Load Factor:</em></h4> [[ parseFloat(key).toFixed(1) ]]
+                    <div v-for="(cop, temp) in value" :key="temp"  class="w3-hover-border-color" id="something">
                     Waste Heat Supply Temperature (Celsius): [[ parseFloat(temp).toFixed(0) ]] | Coefficient of Performance: [[ parseFloat(cop).toFixed(2) ]]
-                    <hr>
                     </div>
                 </div>
                 </table>
@@ -126,86 +123,23 @@
             Witte, Francesco & Tuschy, Ilja. (2020). TESPy: Thermal Engineering Systems in Python. Journal of Open Source Software. 5. 2178. <a href="https://doi.org/10.21105/joss.02178">https://doi.org/10.21105/joss.02178</a> </p>
         </template>
     </ul>
-    </div>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script src="https://unpkg.com/vue"></script>
-    <script>
-        const vm = new Vue({
-            el: '#app',
-            delimiters: ['[[', ']]'],
-            data: {
-                ran: false,
-                is_loading: false,
-                row: 0,
-                sim: [],
-                sim_json: {},
-                currentsim: null,
-                newSim: {
-                    "ttd_condenser": 5,
-                    "ttd_evaporator": 5,
-                    "water_pump_eff": .75,
-                    "dh_pump_eff": .80,
-                    "evap_pump_eff": .80,
-                    "compressor_eff": .80,
-                    "dh_return_temp": 50,
-                    "pressure_bar_dh": 10,
-                    "dh_supply_temp": 75,
-                    "waste_design_temp": 35,
-                    "waste_design_pressure": 2,
-                    "return_pressure_from_hp": 2,
-                    "return_temperature_from_hp": 15,
-                    "dh_demand_watts": 4000000,
-                },
-                editMode: false,
-                csrf_token: "",
-                postErrors: {}
-            },
-            methods: {
-                runSim: function() {
-                    axios({
-                    url: `/${this.row}/`
-                    }).then(response => {
-                        sim_json = JSON.parse(response.data)
-                        console.log(sim_json)
-                        this.sim = sim_json
-                        this.ran = true
-                        this.is_loading = false
-                    })
-                },
-                toggleEdit: function() {
-                    this.editMode = this.editMode ? false : true
-                },
-                createSim: function() {
-                    axios({
-                    method: 'post',
-                    url: '/create/',
-                    data: {
-                    "ttd_condenser": this.newSim.ttd_condenser,
-                    "ttd_evaporator": this.newSim.ttd_evaporator,
-                    "water_pump_eff": this.newSim.water_pump_eff,
-                    "evap_pump_eff": this.newSim.evap_pump_eff,
-                    "dh_pump_eff": this.newSim.dh_pump_eff,
-                    "compressor_eff": this.newSim.compressor_eff,
-                    "dh_return_temp": this.newSim.dh_return_temp,
-                    "pressure_bar_dh": this.newSim.pressure_bar_dh,
-                    "dh_supply_temp": this.newSim.dh_supply_temp,
-                    "waste_design_temp": this.newSim.waste_design_temp,
-                    "waste_design_pressure": this.newSim.waste_design_pressure,
-                    "return_pressure_from_hp": this.newSim.return_pressure_from_hp,
-                    "return_temperature_from_hp": this.newSim.return_temperature_from_hp,
-                    "dh_demand_watts": this.newSim.dh_demand_watts,
-                    
-                    }
-                }).then(response => {
-                    this.is_loading = true
-                    this.row = response.data
-                    this.runSim(response.data)
-                    // console.log(response.data)
-                })
-                }
-            },
-        })
-    </script>
+    {% comment %} <script>
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['60%', '80%', '100%', '120%', '140%'],
+        datasets: [{
+        label: '60% of design heat demand',
+        data: [],
+        backgroundColor: "rgba(153,255,51,0.4)"
+        }, {
+        label: '80% of design heat demand',
+        data: [2, 29, 5, 5, 2, 3, 10],
+        backgroundColor: "rgba(255,153,0,0.4)"
+        }]
+    }
+    });</script> {% endcomment %}
 </body>
 </html>
 {% endblock content %}
