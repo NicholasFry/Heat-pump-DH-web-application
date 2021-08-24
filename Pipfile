@@ -9,6 +9,7 @@ djangorestframework = "*"
 tespy = "*"
 django-on-heroku = "*"
 gunicorn = "*"
+seaborn = "*"
 
 [dev-packages]
 
