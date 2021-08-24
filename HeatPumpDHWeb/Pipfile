@@ -7,6 +7,8 @@ name = "pypi"
 django = "*"
 djangorestframework = "*"
 tespy = "*"
+django-on-heroku = "*"
+gunicorn = "*"
 
 [dev-packages]
 
