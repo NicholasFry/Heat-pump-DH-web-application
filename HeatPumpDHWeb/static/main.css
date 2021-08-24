@@ -56,6 +56,9 @@ button:hover {
     margin-right: auto;
     margin-top: 6rem;
 }
+#results_chart {
+    box-shadow: 0 10px 16px 0 rgb(255, 0, 0), 0 27px 50px 0 rgb(31, 241, 3);
+}
 .loader {
     position: fixed;
     top: 1%;

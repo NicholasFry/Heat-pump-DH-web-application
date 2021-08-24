@@ -251,7 +251,8 @@ class RunSimulation(APIView):
         # path = { '*/report/'}
 
         nw.solve('design')#network solve    
-        # raw_iterations = nw.print_results()
+        nw.print_results()
+        
         nw.save('heat_pump_water')
         document_model(nw, filename='report_water_design.tex', fmt=fmt)#output network model to latex report
         # offdesign test
@@ -259,7 +260,8 @@ class RunSimulation(APIView):
         # document_model(nw, filename='report_water_offdesign.tex', fmt=fmt)#print these alternatives to a latex report
         # #the following comments are from fwitte
         T_range = [sim_parameters.wasted_heat_design_temperature-6, sim_parameters.wasted_heat_design_temperature-3, sim_parameters.wasted_heat_design_temperature, sim_parameters.wasted_heat_design_temperature+3, sim_parameters.wasted_heat_design_temperature+6][::-1]#inverted the temperature and heat provision ranges to always start near the design point specifications rather than further away.
-        Q_range = np.array([sim_parameters.dh_heat_demand_in_watts*.60, sim_parameters.dh_heat_demand_in_watts*.80, sim_parameters.dh_heat_demand_in_watts, sim_parameters.dh_heat_demand_in_watts*1.2, sim_parameters.dh_heat_demand_in_watts*1.4])[::-1]#Only after restarting from full load after modifying the temperature I read the initial values from the design specs, all other simulations start at the previous solution of the model which is always near the current case.
+        Q_range = np.array([np.round(sim_parameters.dh_heat_demand_in_watts*.60), np.round(sim_parameters.dh_heat_demand_in_watts*.80), np.round(sim_parameters.dh_heat_demand_in_watts), np.round(sim_parameters.dh_heat_demand_in_watts*1.2), np.round(sim_parameters.dh_heat_demand_in_watts*1.4)])[::-1]#Only after restarting from full load after modifying the temperature I read the initial values from the design specs, all other simulations start at the previous solution of the model which is always near the current case.
+        # print(Q_range)
         # df2 = pd.DataFrame(columns=Q_range / -cons_1.Q.val)
         # print(df2)
         df = pd.DataFrame(columns=Q_range / -cons_1.Q.val)
@@ -309,6 +311,13 @@ class RunSimulation(APIView):
             df.loc[T] = eps
             # df2.loc[T] = eps
         result = df.to_json()
+        print(df)
+        df.plot.line()
+        plt.legend(['1.4 times design demand', '1.2 times design demand', '<<design load>>', '0.8 times design demand', '0.6 times design demand'])
+        plt.title("Heat Pump for District Energy")
+        plt.ylabel("Coefficient of Performance")
+        plt.xlabel("Waste Heat Source Temperature (C)")
+        # df.plot(x="Name", y="Age", kind="bar")
         # sns.lineplot()
         # csv_result = df.to_csv()
         # simulation = SimParameters.objects.create(id=id, )

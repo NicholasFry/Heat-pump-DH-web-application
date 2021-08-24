@@ -107,6 +107,7 @@
         </form>
     <ul>
         <template v-if="ran" id="results">
+            <img alt="heat pump results" class="displayed" src={% static "lines.png" %} id="results_chart">
             <h3>Simulation Number: [[ row ]] </h3>
             <h4>Single-Stage Centralized Heat Pump Energy Efficiency for District Heating
                 <table class="w3-table-all w3-centered w3-hoverable">
