@@ -21,31 +21,7 @@ from simulations_app.models import SimParameters
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
 
-import os
-import platform
-import subprocess
-
-
-# sim_parameters = get_object_or_404(SimParameters, id=self.kwargs['pk'])
-# sim_parameters.upper_terminal_temperature_difference_condenser = SimParameters.upper_terminal_temperature_difference_condenser
-# print(sim_parameters.upper_terminal_temperature_difference_condensercd)
-# sim_parameters.lower_terminal_temperature_difference_ecaporator
-# sim_parameters.water_pump_efficiency
-# sim_parameters.district_heating_pump_efficiency
-# sim_parameters.evaporator_pump_efficiency
-# sim_parameters.compressor_efficiency
-# sim_parameters.temp_district_heat_return
-# sim_parameters.pressure_in_bar_dh
-# sim_parameters.dh_supply_temp
-# sim_parameters.wasted_heat_design_temperature
-# sim_parameters.pressure_in_bar_waste_heat_fluid
-# sim_parameters.return_pressure_from_heat_pump
-# sim_parameters.return_temperature_from_heat_pump
-# sim_parameters.demand_in_watts
-# def post(self, request, format=None):
-#     upper_terminal_temperature_difference_condenser = request.get('')
 class PrepareSimulation(CreateAPIView):
     def post(self, request, format=None):
         # print(request)
@@ -253,14 +229,14 @@ class RunSimulation(APIView):
         nw.solve('design')#network solve    
         # nw.print_results()
         
-        nw.save('heat_pump_water')
+        nw.save('heat_pump_water', max_iter=5)#added in max iterations because of the 30sec limit on Heroku app processing times. May result in errant eta_s solutions...
         # document_model(nw, filename='report_water_design.tex', fmt=fmt)#output network model to latex report
         # offdesign test
-        nw.solve('offdesign', design_path='heat_pump_water')#solve the offdesign values for the network (other projected outcomes)
+        nw.solve('offdesign', design_path='heat_pump_water', max_iter=5)#solve the offdesign values for the network (other projected outcomes)
         # document_model(nw, filename='report_water_offdesign.tex', fmt=fmt)#print these alternatives to a latex report
         # #the following comments are from fwitte
-        T_range = [sim_parameters.wasted_heat_design_temperature-3, sim_parameters.wasted_heat_design_temperature, sim_parameters.wasted_heat_design_temperature+3][::-1]#inverted the temperature and heat provision ranges to always start near the design point specifications rather than further away.
-        Q_range = np.array([np.round(sim_parameters.dh_heat_demand_in_watts*.80), np.round(sim_parameters.dh_heat_demand_in_watts), np.round(sim_parameters.dh_heat_demand_in_watts*1.2)])[::-1]#Only after restarting from full load after modifying the temperature I read the initial values from the design specs, all other simulations start at the previous solution of the model which is always near the current case.
+        T_range = [sim_parameters.wasted_heat_design_temperature-6, sim_parameters.wasted_heat_design_temperature-3, sim_parameters.wasted_heat_design_temperature, sim_parameters.wasted_heat_design_temperature+3, sim_parameters.wasted_heat_design_temperature+6][::-1]#inverted the temperature and heat provision ranges to always start near the design point specifications rather than further away.
+        Q_range = np.array([np.round(sim_parameters.dh_heat_demand_in_watts*.60), np.round(sim_parameters.dh_heat_demand_in_watts*.80), np.round(sim_parameters.dh_heat_demand_in_watts), np.round(sim_parameters.dh_heat_demand_in_watts*1.2), np.round(sim_parameters.dh_heat_demand_in_watts*1.4)])[::-1]#Only after restarting from full load after modifying the temperature I read the initial values from the design specs, all other simulations start at the previous solution of the model which is always near the current case.
         # print(Q_range)
         # df2 = pd.DataFrame(columns=Q_range / -cons_1.Q.val)
         # print(df2)
@@ -313,7 +289,7 @@ class RunSimulation(APIView):
         result = df.to_json()
         # print(df)
         df.plot.line()
-        plt.legend(['1.2 times design demand', '<<design load>>', '0.8 times design demand'])
+        plt.legend(['1.4 times design demand', '1.2 times design demand', '<<design load>>', '0.8 times design demand', '0.6 times design demand'])
         plt.title("Heat Pump for District Energy")
         plt.ylabel("Coefficient of Performance")
         plt.xlabel("Waste Heat Source Temperature (C)")
