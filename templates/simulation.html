@@ -1,0 +1,30 @@
+{% extends 'home.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <title>Results for Heat Pumps and District Heating</title>
+</head>
+<body>
+    <div id="app">
+    {% csrf_token %} 
+    <h2>New Simulation Results</h2>
+    <table class="w3-table-all w3-centered w3-hoverable">
+    <thead>
+        <tr>
+            <th>Heat Demand Factor = 1.4</th>
+            <th>Heat Demand Factor = 1.2</th>
+            <th>Heat Demand Factor = 0.8</th>
+            <th>Heat Demand Factor = 0.6</th>
+        </tr>
+    </thead>
+        <tr v-for="load in result">
+            <td>[[ load ]]</td>
+        </tr>
+    </table>
+    <textarea v-model="jsonstr" rows="8" cols="40"></textarea>
+    <pre>{{ jsonstr | pretty }}</pre>
+    </div>

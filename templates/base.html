@@ -1,0 +1,161 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heat Pumps for District Heating</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+    <script src="https://unpkg.com/vue-chartjs/dist/vue-chartjs.min.js"></script>
+    <link href="{% static 'main.css' %}" rel="stylesheet">
+</head>
+<body>
+<div class="w3-top" id="top">
+    <div class="w3-container w3-purple">
+        <h1 class="w3-center w3-san-serif">Low-carbon District Heating Assessments</h1>
+    </div>
+    <div class="w3-bar w3-black w3-card w3-left-align w3-large">
+        <a class="w3-bar-item w3-button w3-hide-medium w3-hide-large w3-right w3-padding-large w3-hover-white w3-large w3-black" href="javascript:void(0);" onclick="myFunction()" title="Toggle Navigation Menu"><i class="fa fa-bars"></i></a>
+        <a href="{% url 'home' %}" class="w3-bar-item w3-button w3-padding-large w3-white">Home</a>
+        <a href="{% url 'about' %}" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">About</a>
+        <a href="{% url 'share' %}" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Share</a>
+        <a href="{% url 'contact' %}" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Contact</a>
+    </div>
+
+    <!-- Navbar on small screens -->
+    <div id="navBar" class="w3-bar-block w3-white w3-hide w3-hide-large w3-hide-medium w3-large">
+        <a href="{% url 'about' %}" class="w3-bar-item w3-button w3-padding-large">About</a>
+        <a href="{% url 'share' %}" class="w3-bar-item w3-button w3-padding-large">Share</a>
+        <a href="{% url 'contact' %}" class="w3-bar-item w3-button w3-padding-large">Contact</a>
+    </div>
+    </div>
+</div>
+<div id="app">
+{% csrf_token %} 
+<header class="w3-container w3-red w3-center" style="padding:128px 16px" v-if="!hideDiv">
+<div>
+  <h1 class="w3-margin w3-jumbo" id="start"></h1>
+  <p class="w3-xlarge">Click below to begin a preliminary assessment for district heating using a centralized heat pump from your local resource.<br></p>
+  <button class="w3-button w3-black w3-padding-large w3-large w3-margin-top"><a href="{% url 'home' %}" id="getstarted" @click="hideMe">Get Started</a></button>
+  <br>
+  <p class="w3-xlarge">Each assessment weighs 4 off-design load factors and 4 off-design supply temperatures from your known resource values.</p>
+</header>
+    <div class="container">
+    {% block content %}
+    {% endblock content %}
+    </div>
+<hr>
+<footer class="w3-container w3-padding-32 w3-center w3-teal w3-opacity" style="margin-top:1rem" id="footer">
+    <div class="w3-center w3-xlarge w3-opacity">
+        <p>© 2021 Copyright</p>
+        <p>The Geothermal Good Life.</p>
+    </div>
+</footer>
+</div>
+</body>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/vue"></script>
+    <script>
+        const vm = new Vue({
+            el: '#app',
+            delimiters: ['[[', ']]'],
+            data: {
+                ran: false,
+                is_loading: false,
+                editMode: false,
+                hideDiv: false,
+                row: 0,
+                sim: [],
+                value: [],
+                load_factor: [],
+                temp: [],
+                cop: [],
+                sim_json: {},
+                currentsim: null,
+                newSim: {
+                    "ttd_condenser": 5,
+                    "ttd_evaporator": 5,
+                    "water_pump_eff": .75,
+                    "dh_pump_eff": .80,
+                    "evap_pump_eff": .80,
+                    "compressor_eff": .80,
+                    "dh_return_temp": 50,
+                    "pressure_bar_dh": 10,
+                    "dh_supply_temp": 75,
+                    "waste_design_temp": 35,
+                    "waste_design_pressure": 2,
+                    "return_pressure_from_hp": 2,
+                    "return_temperature_from_hp": 15,
+                    "dh_demand_watts": 4000000,
+                },
+                csrf_token: "",
+                postErrors: {}
+            },
+            methods: {
+                runSim: function() {
+                    axios({
+                    url: `/${this.row}/`
+                    }).then(response => {
+                        sim_json = JSON.parse(response.data)
+                        console.log(sim_json)
+                        this.sim = sim_json
+                        this.ran = true
+                        this.is_loading = false
+                        this.hideDiv = true
+                    })
+                },
+                toggleEdit: function() {
+                    this.editMode = this.editMode ? false : true
+                },
+                hideMe: function() {
+                     this.hideDiv = true
+                },
+                createSim: function() {
+                    axios({
+                    method: 'post',
+                    url: '/create/',
+                    data: {
+                    "ttd_condenser": this.newSim.ttd_condenser,
+                    "ttd_evaporator": this.newSim.ttd_evaporator,
+                    "water_pump_eff": this.newSim.water_pump_eff,
+                    "evap_pump_eff": this.newSim.evap_pump_eff,
+                    "dh_pump_eff": this.newSim.dh_pump_eff,
+                    "compressor_eff": this.newSim.compressor_eff,
+                    "dh_return_temp": this.newSim.dh_return_temp,
+                    "pressure_bar_dh": this.newSim.pressure_bar_dh,
+                    "dh_supply_temp": this.newSim.dh_supply_temp,
+                    "waste_design_temp": this.newSim.waste_design_temp,
+                    "waste_design_pressure": this.newSim.waste_design_pressure,
+                    "return_pressure_from_hp": this.newSim.return_pressure_from_hp,
+                    "return_temperature_from_hp": this.newSim.return_temperature_from_hp,
+                    "dh_demand_watts": this.newSim.dh_demand_watts,
+                    }
+                }).then(response => {
+                    this.is_loading = true
+                    this.row = response.data
+                    this.runSim(response.data)
+                    // console.log(response.data)
+                })
+                }
+            },
+        })
+    </script>
+<script>
+// Used to toggle the menu on small screens when clicking on the menu button
+function myFunction() {
+  var x = document.getElementById("navBar");
+  if (x.className.indexOf("w3-show") == -1) {
+    x.className += " w3-show";
+  } else { 
+    x.className = x.className.replace(" w3-show", "");
+  }
+}
+</script>
+</div>
+</html>

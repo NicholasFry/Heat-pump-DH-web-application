@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heat Pumps for District Heating</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'main.css' %}">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+</head>
+<body>
+    {% csrf_token %} 
+    <h2>Run a new simulation</h2>
+        <img alt="heat pump image" class="displayed" src="https://github.com/NicholasFry/Heat-pump-DH-web-application/blob/main/HeatPumpDHWeb/HP_app_2.png?raw=true" id="schematic">
+        
+        <form>
+        <div class="w3-card-4 w3-margin w3-blue">
+        <header class="w3-container w3-blue">
+        <h2>Enter your known system parameters.</h2>
+        </header>
+
+        <div class="w3-container">
+        <div class="w3-row">
+            <div class="w3-col s6 w3-blue-gray w3-center">
+                <label for="ttd_u" class="w3-monospace w3-wide">Terminal Temperature Difference @ Condenser:</label>
+                <input type="number" class= "w3-center" placeholder="Terminal Temp Diff @ Condenser" v-model="newSim.ttd_condenser" name="ttd_u" style='width:5em'>
+            </div>
+            <div class="w3-col s6 w3-blue-gray w3-center">
+                <label for="ttd_l" class="w3-monospace w3-wide">Terminal Temperature Difference @ Evaporator:</label>
+                <input type="number" class= "w3-center" placeholder="Terminal Temp Diff @ Evaporator" v-model="newSim.ttd_evaporator" name="ttd_l" style='width:5em'>
+            </div>
+        </div>
+        <div class="w3-row">
+            <div class="w3-col s6 w3-orange w3-center">
+                <label for="water_pump_n" class="w3-monospace w3-wide">Water Pump Efficiency:</label>
+                <input type="number" class= "w3-center" placeholder="Water Pump Efficiency" v-model="newSim.water_pump_eff" name="water_pump_n" style='width:5em'>
+            </div>
+            <div class="w3-col s6 w3-orange w3-center">
+                <label for="dh_hp_n" class="w3-monospace w3-wide">District Heating Pump Efficiency:</label>
+                <input type="number" class= "w3-center" placeholder="District Heating Pump Efficiency" v-model="newSim.dh_pump_eff" name="dh_hp_n" style='width:5em'>
+            </div>
+        </div>
+        <div class="w3-row">
+            <div class="w3-col s6 w3-blue-gray w3-center">
+                <label for="ev_pump_n" class="w3-monospace w3-wide">Evaporator Pump Efficiency:</label>
+                <input type="number" placeholder="Evaporator Pump Efficiency" v-model="newSim.evap_pump_eff" name="ev_pump_n" style='width:5em'>
+            </div>
+            <div class="w3-col s6 w3-blue-gray w3-center">
+                <label for="comp_n" class="w3-monospace w3-wide">Compressor Efficiency:</label>
+                <input type="number" placeholder="Compressor Efficiency" v-model="newSim.compressor_eff" name="comp_n" style='width:5em'>
+            </div>
+        </div>
+        <div class="w3-row">
+            <div class="w3-col s6 w3-orange w3-center">
+                <label for="dh_return_temp" class="w3-monospace w3-wide">District Heating Return Temp:</label>
+                <input type="number" placeholder="District Heating Return Temp" v-model="newSim.dh_return_temp" name="dh_return_temp" style='width:5em'>
+            </div>
+            <div class="w3-col s6 w3-orange w3-center">
+                <label for="pr_bar_dh" class="w3-monospace w3-wide">Pressure in Bar for District Heating:</label>
+                <input type="number" placeholder="Pressure in Bar for DH" v-model="newSim.pressure_bar_dh" name="pr_bar_dh" style='width:5em'>
+            </div>
+        </div>
+        <div class="w3-row">
+            <div class="w3-col s6 w3-blue-gray w3-center">
+                <label for="dh_supply_temp" class="w3-monospace w3-wide">DH Supply Temperature:</label>
+                <input type="number" placeholder="DH Supply Temperature" v-model="newSim.dh_supply_temp" name="dh_supply_temp" style='width:5em'>
+            </div>
+            <div class="w3-col s6 w3-blue-gray w3-center">
+                <label for="waste_heat_temp" class="w3-monospace w3-wide">Waste Heat Design Temperature:</label>
+                <input type="number" placeholder="Waste Heat Design Temperature" v-model="newSim.waste_design_temp" name="waste_heat_temp" style='width:5em'>
+            </div>
+        </div>
+        <div class="w3-row">
+            <div class="w3-col s6 w3-orange w3-center">
+                <label for="waste_design_pressure" class="w3-monospace w3-wide">Pressure in Bar of the Waste Heat Fluid:</label>
+                <input type="number" placeholder="Pressure in Bar of the Waste Heat Fluid" v-model="newSim.waste_design_pressure" name="waste_heat_pump" style='width:5em'>
+            </div>
+            <div class="w3-col s6 w3-orange w3-center">
+                <label for="return_pressure_from_hp" class="w3-monospace w3-wide">Return Pressure from Heat Pump:</label>
+                <input type="number" placeholder="Return Pressure from Heat Pump" v-model="newSim.return_pressure_from_hp" name="return_pressure_from_hp" style='width:5em'>
+            </div>
+        </div>
+        <div class="w3-row">
+            <div class="w3-col s6 w3-blue-gray w3-center">
+                <label for="return_temperature_from_hp" class="w3-monospace w3-wide">Return Temperature from Heat Pump:</label>
+                <input type="number" placeholder="Return Temperature from Heat Pump" v-model="newSim.return_temperature_from_hp" name="return_temperature_from_hp" style='width:5em'>
+            </div>
+            <div class="w3-col s6 w3-blue-gray w3-center">
+                <label for="dh_demand_watts" class="w3-monospace w3-wide">DH Heat Demand in Watts:</label>
+                <input type="number" placeholder="DH Heat Demand in Watts" v-model="newSim.dh_demand_watts" name="dh_demand_watts" style='width:8em'>
+            </div>
+        </div>
+            <template v-if="postErrors.name">
+                <p v-for="error in postErrors.name">[[ error ]]</p>
+            </template>
+        </div>
+
+        <footer class="w3-container w3-blue">
+        <button @click="createSim" class="w3-margin">Run Simulation</button>
+        </footer>
+
+        </div>
+        <div class="loader" v-if="is_loading"></div>
+        </form>
+    <ul>
+        <template v-if="ran" id="results">
+            <img alt="heat pump results" class="displayed" src={% static "lines.png" %} id="results_chart">
+            <h3>Simulation Number: [[ row ]] </h3>
+            <h4>Single-Stage Centralized Heat Pump Energy Efficiency for District Heating
+                <table class="w3-table-all w3-centered w3-hoverable">
+                <hr>
+                <div v-for="(value, key) in sim" :key="key" id="something_too">
+                <h4><em>Heat Load Factor:</em></h4> [[ parseFloat(key).toFixed(1) ]]
+                    <div v-for="(cop, temp) in value" :key="temp"  class="w3-hover-border-color" id="something">
+                    Waste Heat Supply Temperature (Celsius): [[ parseFloat(temp).toFixed(0) ]] | Coefficient of Performance: [[ parseFloat(cop).toFixed(2) ]]
+                    </div>
+                </div>
+                </table>
+            </h4>
+            <p>This simulation is run using Thermal Engineering Systems in Python (TESPy). Any errors are the website developer's own (<a href="http://www.nicholasfry.net">Nicholas Fry).</a><br><br>
+            Witte, Francesco & Tuschy, Ilja. (2020). TESPy: Thermal Engineering Systems in Python. Journal of Open Source Software. 5. 2178. <a href="https://doi.org/10.21105/joss.02178">https://doi.org/10.21105/joss.02178</a> </p>
+        </template>
+    </ul>
+    {% comment %} <script>
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['60%', '80%', '100%', '120%', '140%'],
+        datasets: [{
+        label: '60% of design heat demand',
+        data: [],
+        backgroundColor: "rgba(153,255,51,0.4)"
+        }, {
+        label: '80% of design heat demand',
+        data: [2, 29, 5, 5, 2, 3, 10],
+        backgroundColor: "rgba(255,153,0,0.4)"
+        }]
+    }
+    });</script> {% endcomment %}
+</body>
+</html>
+{% endblock content %}
