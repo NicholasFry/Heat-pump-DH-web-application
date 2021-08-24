@@ -317,6 +317,7 @@ class RunSimulation(APIView):
         plt.title("Heat Pump for District Energy")
         plt.ylabel("Coefficient of Performance")
         plt.xlabel("Waste Heat Source Temperature (C)")
+        plt.savefig("static/lines.png", format="png")
         # df.plot(x="Name", y="Age", kind="bar")
         # sns.lineplot()
         # csv_result = df.to_csv()

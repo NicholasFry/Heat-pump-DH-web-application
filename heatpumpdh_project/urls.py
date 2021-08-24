@@ -25,5 +25,6 @@ urlpatterns = [
     path('about/', TemplateView.as_view(template_name='about.html'), name='about'),
     path('share/', TemplateView.as_view(template_name='share.html'), name='share'),
     path('contact/', TemplateView.as_view(template_name='contact.html'), name='contact'),
+    path('simulation/', TemplateView.as_view(template_name='simulation.html'), name='simulation'),
     path('', include('api_app.urls')),
 ]

@@ -67,6 +67,7 @@
             delimiters: ['[[', ']]'],
             data: {
                 ran: false,
+                ran_again: true,
                 is_loading: false,
                 editMode: false,
                 hideDiv: false,
@@ -114,6 +115,7 @@
                     this.editMode = this.editMode ? false : true
                 },
                 hideMe: function() {
+                     this.ran = true
                      this.hideDiv = true
                 },
                 createSim: function() {

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <button class="w3-button w3-black w3-padding-large w3-large w3-margin-top"><a href="{% url 'home' %}" id="getstarted" @click="hideMe">Start a New Simulation</a></button>
+    <img v-if="ran_again" alt="heat pump results" class="displayed" src={% static "lines.png" %} id="results_chart">
+</body>
+</html>
