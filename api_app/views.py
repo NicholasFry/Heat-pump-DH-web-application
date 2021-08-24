@@ -226,13 +226,13 @@ class RunSimulation(APIView):
         # }
         # path = { '*/report/'}
 
-        nw.solve('design', max_iter=5)#network solve    
+        nw.solve('design')#network solve #adding in max iterations because of the 30sec limit on Heroku app processing times may result in errant eta_s solutions...
         # nw.print_results()
         
-        nw.save('heat_pump_water')#added in max iterations because of the 30sec limit on Heroku app processing times. May result in errant eta_s solutions...
+        nw.save('heat_pump_water')
         # document_model(nw, filename='report_water_design.tex', fmt=fmt)#output network model to latex report
         # offdesign test
-        # nw.solve('offdesign', design_path='heat_pump_water', max_iter=5)#solve the offdesign values for the network (other projected outcomes)
+        nw.solve('offdesign', design_path='heat_pump_water')#solve the offdesign values for the network (other projected outcomes)
         # document_model(nw, filename='report_water_offdesign.tex', fmt=fmt)#print these alternatives to a latex report
         # #the following comments are from fwitte
         T_range = [sim_parameters.wasted_heat_design_temperature-6, sim_parameters.wasted_heat_design_temperature-3, sim_parameters.wasted_heat_design_temperature, sim_parameters.wasted_heat_design_temperature+3, sim_parameters.wasted_heat_design_temperature+6][::-1]#inverted the temperature and heat provision ranges to always start near the design point specifications rather than further away.
@@ -275,7 +275,7 @@ class RunSimulation(APIView):
 
             for Q in Q_range:
                 cons_1.set_attr(Q=-Q)
-                nw.solve('offdesign', design_path='heat_pump_water', max_iter=5)
+                nw.solve('offdesign', design_path='heat_pump_water')
 
                 if nw.lin_dep:
                     eps += [np.nan]
