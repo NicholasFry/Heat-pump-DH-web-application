@@ -275,7 +275,7 @@ class RunSimulation(APIView):
 
             for Q in Q_range:
                 cons_1.set_attr(Q=-Q)
-                nw.solve('offdesign', design_path='heat_pump_water')
+                nw.solve('offdesign', design_path='heat_pump_water', max_iter=5)
 
                 if nw.lin_dep:
                     eps += [np.nan]
