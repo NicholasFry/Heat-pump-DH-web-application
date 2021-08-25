@@ -105,7 +105,7 @@
         </div>
         <div class="loader" v-if="is_loading"></div>
         </form>
-    <button class="w3-button w3-black w3-padding-large w3-large w3-margin-top" v-if="ran"><a href="{% url 'home' %}" id="getstarted" @click="hideMe">Start a New Simulation</a></button>
+    <button class="w3-button w3-black w3-padding-large w3-large w3-margin" v-if="ran"><a href="{% url 'home' %}" id="getstarted" @click="hideMe">Start a New Simulation</a></button>
     <ul>
         <template v-if="ran" id="results">
             <img alt="heat pump results" class="displayed" src={% static "lines.png" %} id="results_chart">
@@ -125,7 +125,7 @@
             Witte, Francesco & Tuschy, Ilja. (2020). TESPy: Thermal Engineering Systems in Python. Journal of Open Source Software. 5. 2178. <a href="https://doi.org/10.21105/joss.02178">https://doi.org/10.21105/joss.02178</a> </p>
         </template>
     </ul>
-    <button class="w3-button w3-black w3-padding-large w3-large w3-margin-top" v-if="ran"><a href="{% url 'home' %}" id="getstarted" @click="hideMe">Start a New Simulation</a></button>
+    <button class="w3-button w3-black w3-padding-large w3-large w3-margin" v-if="ran"><a href="{% url 'home' %}" id="getstarted" @click="hideMe">Start a New Simulation</a></button>
     {% comment %} <script>
     var ctx = document.getElementById('myChart').getContext('2d');
     var myChart = new Chart(ctx, {
