@@ -11,6 +11,9 @@ body {
 #getstarted {
     text-decoration: none;
 }
+#linkbar {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
 header {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
@@ -63,7 +66,7 @@ button:hover {
     position: fixed;
     top: 1%;
     bottom: 1%;
-    left: 20%;
+    left: 31%;
     right: 20%;
     z-index: 1;
     border-top: 6rem solid rgb(255, 0, 234);

@@ -126,23 +126,6 @@
         </template>
     </ul>
     <button class="w3-button w3-black w3-padding-large w3-large w3-margin" v-if="ran"><a href="{% url 'home' %}" id="getstarted" @click="hideMe">Start a New Simulation</a></button>
-    {% comment %} <script>
-    var ctx = document.getElementById('myChart').getContext('2d');
-    var myChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: ['60%', '80%', '100%', '120%', '140%'],
-        datasets: [{
-        label: '60% of design heat demand',
-        data: [],
-        backgroundColor: "rgba(153,255,51,0.4)"
-        }, {
-        label: '80% of design heat demand',
-        data: [2, 29, 5, 5, 2, 3, 10],
-        backgroundColor: "rgba(255,153,0,0.4)"
-        }]
-    }
-    });</script> {% endcomment %}
 </body>
 </html>
 {% endblock content %}
